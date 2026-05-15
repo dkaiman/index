@@ -1,0 +1,1506 @@
+<!DOCTYPE html>
+<!-- Springbrook v5 | Course Info nav only | Map link | Mobile responsive -->
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Springbrook Golf — Tee Times</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --green-dark:#1a3a2a;--green-mid:#2d5c3f;--green:#3d7a55;--green-light:#5a9e72;--green-pale:#edf5f0;
+  --gold:#c9a84c;--gold-light:#e8c97a;--gold-pale:#fdf8ee;
+  --cream:#f5f2ec;--cream-dark:#e8e2d8;
+  --text:#181816;--text-mid:#46463e;--text-light:#8c8c82;--white:#ffffff;
+  --shadow:0 1px 3px rgba(0,0,0,.05),0 3px 12px rgba(0,0,0,.05);
+  --shadow-hover:0 2px 8px rgba(0,0,0,.08),0 8px 24px rgba(0,0,0,.07);
+}
+html{font-size:16px}
+body{font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--text);min-height:100vh;line-height:1.5;-webkit-font-smoothing:antialiased}
+
+/* HEADER */
+.header{background:var(--green-dark);padding:0 32px;height:64px;display:flex;align-items:center;justify-content:space-between;border-bottom:2px solid var(--gold);position:sticky;top:0;z-index:50}
+.logo{font-family:'Playfair Display',serif;color:var(--white);font-size:21px;font-weight:500;letter-spacing:.01em}
+.logo-sub{color:rgba(255,255,255,.45);font-size:11px;font-family:'DM Sans',sans-serif;font-weight:300;letter-spacing:.1em;text-transform:uppercase;margin-left:14px}
+.header-nav{display:flex;align-items:center;gap:4px}
+.nav-btn{background:transparent;border:none;color:rgba(255,255,255,.75);font-family:'DM Sans',sans-serif;font-size:13px;font-weight:400;cursor:pointer;padding:7px 14px;border-radius:6px;transition:all .15s;letter-spacing:.01em;text-decoration:none;display:flex;align-items:center;gap:6px}
+.nav-btn:hover{background:rgba(255,255,255,.1);color:var(--white)}
+.nav-btn.active{background:rgba(255,255,255,.12);color:var(--white)}
+.nav-divider{width:1px;height:18px;background:rgba(255,255,255,.15);margin:0 4px}
+
+/* COURSE INFO PANEL */
+.info-panel-overlay{position:fixed;inset:0;background:rgba(10,20,15,.45);backdrop-filter:blur(3px);z-index:180;display:none;align-items:flex-start;justify-content:flex-end}
+.info-panel-overlay.open{display:flex}
+.info-panel{background:var(--white);width:420px;height:100vh;overflow-y:auto;box-shadow:-8px 0 40px rgba(0,0,0,.18);display:flex;flex-direction:column}
+.info-panel-header{background:var(--green-dark);padding:20px 24px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;border-bottom:2px solid var(--gold)}
+.info-panel-title{font-family:'Playfair Display',serif;font-size:18px;font-weight:500;color:var(--white)}
+.info-panel-close{background:none;border:none;font-size:22px;color:rgba(255,255,255,.6);cursor:pointer;transition:color .12s;line-height:1}
+.info-panel-close:hover{color:var(--white)}
+.info-panel-body{padding:28px 24px;flex:1}
+.info-section{margin-bottom:28px}
+.info-section-title{font-size:11px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:var(--text-light);margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--cream-dark)}
+.info-row{display:flex;align-items:flex-start;gap:10px;margin-bottom:10px;font-size:13px;color:var(--text-mid)}
+.info-icon{width:16px;flex-shrink:0;margin-top:1px;color:var(--green)}
+.info-link{color:var(--green);text-decoration:none;font-size:13px}
+.info-link:hover{color:var(--green-mid);text-decoration:underline}
+.info-map{width:100%;height:200px;border-radius:10px;border:1px solid var(--cream-dark);overflow:hidden;margin-bottom:20px}
+.policy-section{background:var(--cream);border-radius:10px;padding:16px 18px;margin-bottom:12px;cursor:pointer;transition:background .12s}
+.policy-section:hover{background:var(--cream-dark)}
+.policy-section-header{display:flex;align-items:center;justify-content:space-between;font-size:13px;font-weight:500;color:var(--green-dark)}
+.policy-section-body{font-size:12px;color:var(--text-mid);line-height:1.6;margin-top:10px;display:none}
+.policy-section-body.open{display:block}
+.policy-section-body h3{font-size:12px;font-weight:500;color:var(--text);margin:10px 0 4px}
+.policy-section-body ul{padding-left:16px;margin:4px 0}
+.policy-section-body li{margin-bottom:4px}
+
+/* FIX 3 — full layout uses fixed heights so sidebar and content scroll independently */
+.main{display:flex;height:calc(100vh - 64px);overflow:hidden}
+
+/* SIDEBAR — fixed, does not scroll with content */
+.sidebar{
+  width:288px;min-width:288px;
+  background:var(--white);
+  border-right:1px solid var(--cream-dark);
+  display:flex;flex-direction:column;
+  height:100%;overflow:hidden;
+}
+.sidebar-scroll{flex:1;overflow-y:auto;padding:24px 20px 0}
+.sec-lbl{font-size:10px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:var(--text-light);margin-bottom:8px;margin-top:20px}
+.sec-lbl:first-child{margin-top:0}
+
+/* CALENDAR — no weekend differentiation (fix 1) */
+.cal-month{font-size:14px;font-weight:500;color:var(--text-mid);margin-bottom:8px;letter-spacing:.02em}
+.cal-dow-row{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;margin-bottom:3px}
+.cal-dow{font-size:9px;text-align:center;color:var(--text-light);font-weight:500;text-transform:uppercase;letter-spacing:.04em;padding:2px 0}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;margin-bottom:20px}
+.cal-day{aspect-ratio:1;display:flex;align-items:center;justify-content:center;border-radius:6px;cursor:pointer;font-size:12px;font-weight:500;border:1px solid transparent;transition:all .12s;color:var(--text-mid);background:transparent;font-family:'DM Sans',sans-serif}
+.cal-day:hover:not(.ghost){background:var(--green-pale);border-color:var(--green-light);color:var(--green-dark)}
+.cal-day.avail{background:var(--cream);border-color:var(--cream-dark)}
+.cal-day.active{background:var(--green-dark) !important;border-color:var(--green-dark) !important;color:var(--white) !important;box-shadow:var(--shadow)}
+.cal-day.ghost{cursor:default;opacity:0;pointer-events:none}
+
+/* FIX 4 — cart toggle properly thin */
+.sec-lbl{font-size:10px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:var(--text-light);margin-bottom:8px;margin-top:20px}
+.toggle-row{display:flex;background:var(--cream);border-radius:5px;padding:2px;gap:2px;border:1px solid var(--cream-dark);margin-bottom:20px}
+.toggle-btn{flex:1;border:none;background:transparent;border-radius:3px;padding:4px 8px;font-family:'DM Sans',sans-serif;font-size:11px;font-weight:500;cursor:pointer;color:var(--text-light);transition:all .12s;text-align:center;line-height:1.4}
+.toggle-btn.active{background:var(--white);color:var(--green-dark);box-shadow:0 1px 2px rgba(0,0,0,.08)}
+
+/* TIME FILTER */
+.filter-row{display:flex;gap:5px;flex-wrap:wrap}
+.filter-btn{border:1px solid var(--cream-dark);background:var(--white);border-radius:20px;padding:5px 12px;font-size:11px;cursor:pointer;font-family:'DM Sans',sans-serif;color:var(--text-mid);transition:all .12s;font-weight:400}
+.filter-btn:hover{border-color:var(--green-light);color:var(--green-dark)}
+.filter-btn.active{background:var(--green-dark);border-color:var(--green-dark);color:var(--white);font-weight:500}
+
+/* FIX 3 — pricing note pinned to bottom of sidebar */
+.sidebar-bottom{
+  padding:16px 20px 80px;
+  border-top:1px solid var(--cream-dark);
+  background:var(--white);
+  flex-shrink:0;
+}
+.pricing-note{padding:12px 14px;background:var(--green-pale);border-radius:8px;border-left:3px solid var(--green-light)}
+.pricing-note-title{font-size:11px;font-weight:500;color:var(--green-dark);margin-bottom:3px}
+/* FIX 2 — updated copy, no "so you always get..." */
+.pricing-note-body{font-size:11px;color:var(--text-mid);line-height:1.5;font-style:italic}
+
+/* MEMBER BAR — FIX 5: no "Golfer type" label, just icon + select */
+.member-bar{display:flex;align-items:center;gap:8px;background:var(--white);border-bottom:1px solid var(--cream-dark);padding:9px 32px;flex-shrink:0}
+.member-icon{font-size:14px;color:var(--text-light);display:flex;align-items:center}
+.member-select{font-family:'DM Sans',sans-serif;font-size:12px;font-weight:500;color:var(--green-dark);background:transparent;border:none;cursor:pointer;appearance:none;-webkit-appearance:none;padding:0 20px 0 0;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='11' height='11' viewBox='0 0 24 24' fill='none' stroke='%238c8c82' stroke-width='2.5'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 2px center}
+.member-select:focus{outline:none}
+.member-badge{font-size:10px;padding:3px 9px;border-radius:10px;font-weight:500;background:var(--gold-pale);color:#7a5c00;border:1px solid #e8c97a;white-space:nowrap;display:none;margin-left:4px}
+.member-badge.visible{display:inline-block}
+
+/* CONTENT — scrollable area only, panel is fixed */
+.content{flex:1;display:flex;flex-direction:column;height:100%;overflow:hidden}
+.content-scroll{flex:1;overflow-y:auto;padding:28px 32px 100px}
+.content-header{margin-bottom:24px}
+.content-title{font-family:'Playfair Display',serif;font-size:26px;font-weight:500;color:var(--green-dark);line-height:1.2}
+.content-sub{font-size:12px;color:var(--text-light);margin-top:4px}
+.result-count{font-size:12px;color:var(--text-light);margin-top:2px}
+
+/* TIME GROUPS */
+.time-group{margin-bottom:28px}
+.time-group-label{font-size:10px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:var(--text-light);margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid var(--cream-dark);display:flex;align-items:center;gap:8px}
+.tgl-holes{font-size:9px;background:var(--cream-dark);color:var(--text-light);padding:1px 6px;border-radius:8px;letter-spacing:.04em;font-weight:500}
+.tee-grid{display:flex;flex-direction:column;gap:6px}
+
+/* TEE CARD */
+.tee-card{background:var(--white);border:1px solid var(--cream-dark);border-radius:11px;padding:14px 18px;display:flex;align-items:center;gap:16px;cursor:pointer;transition:all .15s;position:relative;overflow:hidden;box-shadow:var(--shadow)}
+.tee-card::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:transparent;transition:background .15s;border-radius:3px 0 0 3px}
+.tee-card:hover{border-color:var(--green-light);box-shadow:var(--shadow-hover);transform:translateY(-1px)}
+.tee-card:hover::before{background:var(--green-light)}
+.tee-card.selected{border-color:var(--green);background:var(--green-pale)}
+.tee-card.selected::before{background:var(--green)}
+.tee-card.limited{border-color:var(--gold)}
+.tee-card.limited::before{background:var(--gold)}
+.tee-time-wrap{min-width:78px}
+.tee-time{font-family:'Playfair Display',serif;font-size:20px;font-weight:500;color:var(--green-dark);line-height:1}
+.tee-ampm{font-size:11px;font-weight:300;color:var(--text-light);margin-left:1px}
+.tee-holes-note{font-size:10px;color:var(--text-light);margin-top:2px;font-weight:400}
+.tee-meta{flex:1;display:flex;flex-direction:column;gap:5px}
+.tee-slots{display:flex;gap:3px;align-items:center}
+.slot-dot{width:8px;height:8px;border-radius:50%;border:1.5px solid var(--cream-dark);background:var(--white)}
+.slot-dot.taken{background:var(--cream-dark);border-color:var(--cream-dark)}
+.slots-lbl{font-size:11px;color:var(--text-light);margin-left:6px}
+.tee-price{text-align:right;min-width:64px}
+.price-val{font-family:'Playfair Display',serif;font-size:22px;font-weight:500;color:var(--green-dark);line-height:1}
+.price-per{font-size:10px;color:var(--text-light);margin-top:2px}
+.price-member{font-size:11px;font-weight:500;color:var(--green);font-style:italic;line-height:1.4;text-align:right;min-width:120px}
+.book-btn{background:var(--green-dark);color:var(--white);border:none;border-radius:8px;padding:9px 16px;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:500;cursor:pointer;transition:all .15s;white-space:nowrap;letter-spacing:.01em}
+.book-btn:hover{background:var(--green-mid)}
+.tee-card.selected .book-btn{background:var(--green)}
+.book-btn-member{background:var(--green-pale);color:var(--green-dark);border:1px solid var(--green-light);border-radius:8px;padding:9px 14px;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:500;cursor:pointer;transition:all .15s;white-space:nowrap}
+.book-btn-member:hover{background:#dceee4;border-color:var(--green)}
+
+/* FIX 3 — panel always visible at bottom of content column, not fixed to viewport */
+.panel-wrap{background:var(--green-dark);border-top:2px solid var(--gold);position:fixed;bottom:0;left:0;right:0;z-index:40;transform:translateY(100%);transition:transform .24s cubic-bezier(.4,0,.2,1)}
+.panel-wrap.visible{transform:translateY(0)}
+.panel-inner{padding:14px 32px;display:flex;align-items:center;justify-content:space-between}
+.panel-info{display:flex;gap:24px;align-items:center}
+.panel-item{display:flex;flex-direction:column}
+.panel-lbl{font-size:9px;opacity:.45;letter-spacing:.08em;text-transform:uppercase;color:var(--white);margin-bottom:1px}
+.panel-val{font-family:'Playfair Display',serif;font-size:17px;font-weight:500;color:var(--white)}
+.panel-divider{width:1px;height:32px;background:rgba(255,255,255,.12)}
+.confirm-btn{background:var(--gold);color:var(--green-dark);border:none;border-radius:9px;padding:12px 28px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;cursor:pointer;transition:background .15s;letter-spacing:.02em;white-space:nowrap}
+.confirm-btn:hover{background:var(--gold-light)}
+
+.empty{text-align:center;padding:64px 24px;color:var(--text-light)}
+.empty-icon{font-size:40px;margin-bottom:14px;display:block}
+.empty h3{font-family:'Playfair Display',serif;font-size:20px;color:var(--text-mid);margin-bottom:6px;font-weight:500}
+.empty p{font-size:13px;line-height:1.6;max-width:280px;margin:0 auto}
+::-webkit-scrollbar{width:4px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--cream-dark);border-radius:2px}
+
+/* ══ MODAL OVERLAY ══════════════════════════════════════ */
+.modal-overlay{position:fixed;inset:0;background:rgba(10,20,15,.55);backdrop-filter:blur(3px);z-index:200;display:none;align-items:center;justify-content:center;padding:16px;overscroll-behavior:contain}
+.modal-overlay.open{display:flex}
+.modal{background:var(--white);border-radius:14px;width:100%;max-width:520px;max-height:92vh;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 24px 80px rgba(0,0,0,.22);position:relative}
+.modal-header{padding:20px 24px 16px;border-bottom:1px solid var(--cream-dark);display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.modal-title{font-family:'Playfair Display',serif;font-size:19px;font-weight:500;color:var(--green-dark)}
+.modal-close{background:none;border:none;font-size:22px;color:var(--text-light);cursor:pointer;line-height:1;padding:2px 6px;border-radius:4px;transition:color .12s}
+.modal-close:hover{color:var(--text)}
+.modal-body{padding:24px 24px 32px;overflow-y:auto;flex:1;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;min-height:0;height:0}
+.modal-footer{padding:16px 24px;border-top:1px solid var(--cream-dark);display:flex;gap:10px;flex-shrink:0}
+
+/* timer banner */
+.timer-banner{background:#edf5f0;border:1px solid #c0ddc8;border-radius:8px;padding:12px 16px;font-size:13px;color:#1a5c33;margin-bottom:20px;display:flex;align-items:center;gap:8px}
+.timer-clock{font-weight:600;font-variant-numeric:tabular-nums}
+
+/* booking detail rows */
+.bk-row{display:flex;gap:0;margin-bottom:20px}
+.bk-cell{flex:1}
+.bk-lbl{font-size:10px;font-weight:500;letter-spacing:.08em;text-transform:uppercase;color:var(--text-light);margin-bottom:4px}
+.bk-val{font-size:17px;font-weight:500;color:var(--text)}
+
+/* hole / player selector */
+.sel-group{margin-bottom:22px}
+.sel-group-lbl{font-size:11px;font-weight:500;letter-spacing:.07em;text-transform:uppercase;color:var(--green-dark);margin-bottom:8px}
+.seg{display:inline-flex;border:1px solid var(--cream-dark);border-radius:7px;overflow:hidden}
+.seg-btn{padding:9px 24px;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:500;color:var(--text-mid);background:var(--cream);border:none;cursor:pointer;transition:all .12s}
+.seg-btn:not(:last-child){border-right:1px solid var(--cream-dark)}
+.seg-btn.active{background:var(--green-dark);color:var(--white)}
+.seg-err{font-size:11px;color:#c0392b;margin-top:6px;display:none}
+.seg-err.show{display:block}
+
+/* player btn grid */
+.player-grid{display:flex;gap:8px}
+.player-btn{width:52px;height:44px;border:1px solid var(--cream-dark);border-radius:7px;background:var(--cream);font-family:'DM Sans',sans-serif;font-size:15px;font-weight:500;color:var(--text-mid);cursor:pointer;transition:all .12s}
+.player-btn.active{background:var(--green-dark);color:var(--white);border-color:var(--green-dark)}
+
+/* modal buttons */
+.mbtn-primary{flex:1;background:var(--green-dark);color:var(--white);border:none;border-radius:8px;padding:12px 20px;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:500;cursor:pointer;transition:background .12s}
+.mbtn-primary:hover{background:var(--green-mid)}
+.mbtn-secondary{background:var(--cream);color:var(--text-mid);border:1px solid var(--cream-dark);border-radius:8px;padding:12px 20px;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:500;cursor:pointer;transition:all .12s}
+.mbtn-secondary:hover{border-color:var(--green-light);color:var(--green-dark)}
+
+/* form fields inside modal */
+.mf-group{margin-bottom:16px}
+.mf-lbl{font-size:10px;font-weight:500;letter-spacing:.06em;text-transform:uppercase;color:var(--text-mid);margin-bottom:5px;display:block}
+.mf-input{width:100%;border:1px solid var(--cream-dark);border-radius:7px;padding:10px 13px;font-family:'DM Sans',sans-serif;font-size:14px;color:var(--text);background:var(--cream);transition:border-color .12s;outline:none}
+.mf-input:focus{border-color:var(--green-light);background:var(--white)}
+.mf-input.err{border-color:#c0392b}
+.mf-err{font-size:11px;color:#c0392b;margin-top:3px;display:none}
+.mf-err.show{display:block}
+.mf-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+
+/* or divider */
+.or-div{display:flex;align-items:center;gap:10px;margin:16px 0;color:var(--text-light);font-size:12px}
+.or-div::before,.or-div::after{content:'';flex:1;height:1px;background:var(--cream-dark)}
+
+/* steps breadcrumb */
+.modal-steps{display:flex;align-items:center;gap:6px;padding:10px 24px;border-bottom:1px solid var(--cream-dark);font-size:11px;color:var(--text-light);flex-shrink:0;background:var(--cream)}
+.step-item{display:flex;align-items:center;gap:6px}
+.step-dot{width:18px;height:18px;border-radius:50%;border:1.5px solid var(--cream-dark);display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:600;color:var(--text-light)}
+.step-dot.done{background:var(--green);border-color:var(--green);color:var(--white)}
+.step-dot.active{background:var(--green-dark);border-color:var(--green-dark);color:var(--white)}
+.step-arrow{color:var(--cream-dark);font-size:12px}
+
+/* link */
+.mlink{color:var(--green);font-weight:500;cursor:pointer;text-decoration:none;font-size:13px}
+.mlink:hover{color:var(--green-mid)}
+
+/* member tag */
+.mem-tag{display:inline-flex;align-items:center;gap:4px;background:var(--gold-pale);color:#7a5c00;border:1px solid #e8c97a;border-radius:20px;padding:3px 11px;font-size:11px;font-weight:500;margin-bottom:14px}
+
+/* code input */
+.code-inputs{display:flex;gap:10px;justify-content:center;margin:24px 0}
+.code-box{width:52px;height:60px;border:1.5px solid var(--cream-dark);border-radius:8px;text-align:center;font-size:24px;font-weight:600;color:var(--green-dark);background:var(--cream);outline:none;font-family:'Playfair Display',serif;transition:border-color .12s}
+.code-box:focus{border-color:var(--green);background:var(--white)}
+
+/* confirmation */
+.confirm-icon{width:56px;height:56px;background:var(--green-pale);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;font-size:24px}
+.confirm-rows{background:var(--cream);border-radius:10px;padding:16px 18px;margin:16px 0}
+.confirm-row{display:flex;justify-content:space-between;font-size:13px;margin-bottom:8px}
+.confirm-row:last-child{margin-bottom:0}
+.confirm-row-lbl{color:var(--text-light)}
+.confirm-row-val{font-weight:500}
+
+/* stepper */
+.stepper{display:inline-flex;align-items:center;border:1px solid var(--cream-dark);border-radius:7px;overflow:hidden}
+.step-btn{background:var(--cream);border:none;width:36px;height:36px;font-size:18px;cursor:pointer;color:var(--text-mid);display:flex;align-items:center;justify-content:center;font-family:'DM Sans',sans-serif;transition:background .12s}
+.step-btn:hover{background:var(--cream-dark)}
+.step-val{width:44px;text-align:center;font-size:15px;font-weight:500;border-left:1px solid var(--cream-dark);border-right:1px solid var(--cream-dark);height:36px;display:flex;align-items:center;justify-content:center}
+
+/* checkbox */
+.cb-row{display:flex;align-items:flex-start;gap:9px;margin-bottom:14px}
+.cb-row input{margin-top:3px;accent-color:var(--green-dark);width:14px;height:14px;flex-shrink:0}
+.cb-lbl{font-size:12px;color:var(--text-mid);line-height:1.5}
+
+
+/* ══════════════════════════════════════════════
+   MOBILE RESPONSIVE — bottom sheet pattern
+   Breakpoint: ≤768px
+══════════════════════════════════════════════ */
+
+/* Mobile filter button — hidden on desktop */
+.mobile-filter-btn{display:none}
+
+@media(max-width:768px){
+
+  /* HEADER */
+  .header{padding:0 16px;height:56px}
+  .logo{font-size:17px}
+  .logo-sub{display:none}
+  .nav-btn span,.nav-btn svg + *{font-size:12px}
+  .nav-btn{padding:6px 10px;gap:4px}
+  .header-nav{gap:2px}
+
+  /* HIDE SIDEBAR entirely on mobile */
+  .sidebar{display:none}
+
+  /* MAIN fills full width */
+  .main{height:calc(100vh - 56px)}
+  .content{width:100%}
+  .member-bar{padding:8px 16px}
+  .content-scroll{padding:20px 14px 140px}
+  .content-title{font-size:20px}
+
+  /* TEE CARDS — more compact */
+  .tee-card{padding:11px 12px;gap:10px}
+  .tee-time{font-size:17px}
+  .tee-time-wrap{min-width:62px}
+  .price-val{font-size:18px}
+  .book-btn{padding:8px 12px;font-size:11px}
+  .book-btn-member{padding:8px 10px;font-size:11px}
+  .price-member{font-size:10px;min-width:90px}
+
+  /* RESERVE PANEL */
+  .panel-inner{padding:10px 16px}
+  .panel-info{gap:12px}
+  .panel-val{font-size:14px}
+  .confirm-btn{padding:10px 18px;font-size:12px}
+
+  /* MODAL full-screen on mobile */
+  .modal-overlay{padding:0;align-items:flex-end}
+  .modal{border-radius:16px 16px 0 0;max-height:95vh;max-width:100%}
+
+  /* COURSE INFO PANEL full width on mobile */
+  .info-panel{width:100%}
+  .info-panel-overlay{align-items:flex-end}
+  .info-panel{height:90vh;border-radius:16px 16px 0 0}
+
+  /* CALENDAR cells — smaller on mobile */
+  .cal-day{border-radius:4px;font-size:11px}
+  .cal-grid{gap:1px}
+  .cal-dow{font-size:8px}
+
+  /* SHOW mobile filter button */
+  .mobile-filter-btn{
+    display:flex;align-items:center;gap:6px;
+    background:var(--white);border:1px solid var(--cream-dark);
+    border-radius:8px;padding:9px 14px;font-family:'DM Sans',sans-serif;
+    font-size:12px;font-weight:500;color:var(--green-dark);cursor:pointer;
+    margin:14px 14px 0;width:calc(100% - 28px);justify-content:center;
+    transition:all .15s;
+  }
+  .mobile-filter-btn:hover{background:var(--green-pale);border-color:var(--green-light)}
+}
+
+/* ══ BOTTOM SHEET ══════════════════════════════ */
+.sheet-overlay{position:fixed;inset:0;background:rgba(10,20,15,.45);backdrop-filter:blur(3px);z-index:160;display:none;align-items:flex-end}
+.sheet-overlay.open{display:flex}
+.sheet{background:var(--white);width:100%;border-radius:20px 20px 0 0;max-height:88vh;display:flex;flex-direction:column;box-shadow:0 -8px 40px rgba(0,0,0,.18)}
+.sheet-handle{width:36px;height:4px;background:var(--cream-dark);border-radius:2px;margin:12px auto 4px;flex-shrink:0}
+.sheet-header{padding:8px 20px 14px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;border-bottom:1px solid var(--cream-dark)}
+.sheet-title{font-family:'Playfair Display',serif;font-size:16px;font-weight:500;color:var(--green-dark)}
+.sheet-close{background:none;border:none;font-size:22px;color:var(--text-light);cursor:pointer;line-height:1;padding:2px}
+.sheet-body{padding:20px;overflow-y:auto;flex:1}
+.sheet-section{margin-bottom:20px}
+.sheet-section:last-child{margin-bottom:0}
+
+</style>
+</head>
+<body>
+
+<header class="header">
+  <a href="https://golfnaperville.org/"  style="display:flex;align-items:baseline;text-decoration:none">
+    <div class="logo">Springbrook Golf</div>
+    <div class="logo-sub">Naperville Park District</div>
+  </a>
+    <div style="display:flex;align-items:center;gap:16px">
+    <nav class="header-nav">
+      <button class="nav-btn" onclick="openInfoPanel()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        Course Info
+      </button>
+    </nav>
+    <a href="https://golfnaperville.org/"  style="display:flex;align-items:center"><img src="data:image/jpeg;base64,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" alt="Springbrook Golf Course" style="height:44px;width:auto;object-fit:contain;mix-blend-mode:screen;opacity:.92;filter:brightness(1.15) contrast(0.9);"></a>
+  </div>
+</header>
+
+<div class="main">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-scroll">
+
+      <div class="sec-lbl">Select date</div>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+        <button id="cal-prev" onclick="calNav(-1)" style="background:none;border:none;cursor:pointer;color:var(--text-light);font-size:18px;padding:2px 6px;border-radius:4px;line-height:1;font-family:inherit;transition:color .12s" title="Previous month">&#8249;</button>
+        <div class="cal-month" id="cal-month-lbl" style="margin-bottom:0">May 2026</div>
+        <button id="cal-next" onclick="calNav(1)" style="background:none;border:none;cursor:pointer;color:var(--text-light);font-size:18px;padding:2px 6px;border-radius:4px;line-height:1;font-family:inherit;transition:color .12s" title="Next month">&#8250;</button>
+      </div>
+      <div class="cal-dow-row">
+        <div class="cal-dow">Su</div><div class="cal-dow">Mo</div><div class="cal-dow">Tu</div>
+        <div class="cal-dow">We</div><div class="cal-dow">Th</div><div class="cal-dow">Fr</div><div class="cal-dow">Sa</div>
+      </div>
+      <div class="cal-grid" id="cal-grid"></div>
+
+      <div class="sec-lbl">Cart preference</div>
+      <div class="toggle-row">
+        <button class="toggle-btn" id="btn-walk" onclick="setCart('walk')">Walking</button>
+        <button class="toggle-btn active" id="btn-ride" onclick="setCart('ride')">Riding cart</button>
+      </div>
+
+      <div class="sec-lbl">Filter by time</div>
+      <div class="filter-row" id="tfrow" style="margin-bottom:4px">
+        <button class="filter-btn active" onclick="setTF('all',this)">All times</button>
+        <button class="filter-btn" onclick="setTF('early',this)">Early bird</button>
+        <button class="filter-btn" onclick="setTF('prime',this)">Prime time</button>
+        <button class="filter-btn" onclick="setTF('afternoon',this)">Afternoon</button>
+        <button class="filter-btn" onclick="setTF('twilight',this)">Twilight</button>
+      </div>
+
+    </div>
+
+    <!-- PRICING NOTE pinned to bottom of sidebar -->
+    <div class="sidebar-bottom">
+      <div class="pricing-note">
+        <div class="pricing-note-title">About our pricing</div>
+        <div class="pricing-note-body">Tee time rates vary based on time of day, day of the week, weather conditions, and course availability.</div>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:flex-start;gap:4px;margin-top:14px;padding-top:12px;border-top:1px solid var(--cream-dark)">
+        <svg width="200" height="52" viewBox="0 0 240 56" fill="none">
+          <line x1="12" y1="4" x2="12" y2="50" stroke="#2a1a0a" stroke-width="2" stroke-linecap="round"/>
+          <path d="M12 6 L44 16 L12 26 Z" fill="#c9a84c"/>
+          <path d="M12 6 L44 16 L42 17 L12 8 Z" fill="#e8c97a" opacity=".5"/>
+          <path d="M12 16 L44 16 L12 26 Z" fill="#8a6a1a" opacity=".35"/>
+          <line x1="12" y1="16" x2="44" y2="16" stroke="#a07828" stroke-width="0.6" opacity=".6"/>
+          <line x1="5" y1="50" x2="19" y2="50" stroke="#2a1a0a" stroke-width="1.8" stroke-linecap="round"/>
+          <text x="58" y="29" font-family="Georgia,serif" font-size="26" font-weight="700" fill="#1a3a2a" letter-spacing="2">DYNAMIC</text>
+          <text x="58" y="49" font-family="Georgia,serif" font-size="20" font-weight="400" fill="#c9a84c" letter-spacing="6">GOLF</text>
+        </svg>
+        <div style="font-size:8px;color:var(--text-light);letter-spacing:.04em;line-height:1.2;margin-top:2px">Powered by</div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- CONTENT -->
+  <main class="content">
+
+    <!-- MEMBER TOGGLE — no label, just chevron icon + select (fix 5) -->
+    <div class="member-bar">
+      <span class="member-icon">⇅</span>
+      <select class="member-select" id="member-select" onchange="setMember(this.value)">
+        <option value="public">Brooks Advantage Cardholders &amp; Public</option>
+        <option value="member">Brooks Links Members</option>
+      </select>
+      <span class="member-badge" id="member-badge">✦ Member view</span>
+    </div>
+
+    <!-- SCROLLABLE TEE LIST -->
+    <div class="content-scroll" id="content-scroll">
+      <div class="content-header">
+        <div class="content-title" id="ctitle">Select a date</div>
+        <div class="content-sub" id="csub">Choose a date to view available tee times</div>
+        <div class="result-count" id="rcount"></div>
+      </div>
+      <div id="tee-list">
+        <div class="empty">
+          <span class="empty-icon">⛳</span>
+          <h3>Pick a date to get started</h3>
+          <p>Select any available date on the left to browse tee times and pricing.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- PANEL pinned to bottom of content column (fix 3) -->
+    <div class="panel-wrap" id="sel-panel">
+      <div class="panel-inner">
+        <div class="panel-info">
+          <div class="panel-item"><div class="panel-lbl">Date</div><div class="panel-val" id="p-date">—</div></div>
+          <div class="panel-divider"></div>
+          <div class="panel-item"><div class="panel-lbl">Tee time</div><div class="panel-val" id="p-time">—</div></div>
+          <div class="panel-divider"></div>
+          <div class="panel-item"><div class="panel-lbl">Cart</div><div class="panel-val" id="p-cart">—</div></div>
+          <div class="panel-divider"></div>
+          <div class="panel-item"><div class="panel-lbl">Price</div><div class="panel-val" id="p-price">—</div></div>
+        </div>
+        <button class="confirm-btn" onclick="doConfirm()">Reserve tee time →</button>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<script>
+const FC=[
+  {date:"2026-05-13",dow:"Wed",ta:60.2,tx:65.6,tn:51.3,wm:17.8,pp:[35,21,42,36,9,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],ws:[5.8,8.3,4.7,5.5,16.8,12.6,10.6,14.5,11.2,8.7,7.9,9.4,10.9,14.4,13.7,16.2,15.2,16.1,17.8,16.3,12.9,13.4,12.5,12.1],tmp:[65.6,64.9,64.6,63.3,62.4,62.0,59.4,57.4,55.6,53.9,52.5,51.3,53.4,56.2,58.3,59.3,61.0,62.2,62.7,65.6,65.5,62.4,61.4,59.1]},
+  {date:"2026-05-14",dow:"Thu",ta:54.8,tx:70.1,tn:39.7,wm:10.8,pp:[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],ws:[9.6,10.8,8.8,5.7,2.4,3.1,5.7,5.8,6.7,7.2,3.9,4.4,3.6,5.2,6.3,6.7,6.4,6.0,4.0,2.2,2.2,1.6,1.8,1.1],tmp:[58.4,54.5,50.3,48.2,46.5,45.2,44.2,43.2,42.9,42.5,41.4,39.7,44.0,49.4,54.2,58.2,61.3,63.8,65.7,67.6,68.9,69.7,70.1,69.8]},
+  {date:"2026-05-15",dow:"Fri",ta:60.8,tx:75.1,tn:51.2,wm:21.0,pp:[1,3,5,12,17,28,15,15,15,24,24,24,24,6,6,6,6,26,26,26,26,6,6,6],ws:[8.8,8.6,8.8,8.9,6.3,5.4,10.1,11.6,16.4,21.0,18.8,17.9,18.4,17.3,14.7,12.8,10.0,10.5,11.8,11.1,10.5,10.2,7.7,8.6],tmp:[68.8,70.1,69.7,68.5,66.8,66.5,65.8,65.8,65.2,63.6,64.0,64.5,65.8,66.5,69.7,72.6,73.3,71.7,73.1,74.8,78.9,77.8,77.8,76.7]},
+  {date:"2026-05-16",dow:"Sat",ta:70.4,tx:78.9,tn:63.6,wm:15.2,pp:[60,60,60,60,60,60,60,60,60,67,67,67,67,67,67,67,46,46,46,46,46,46,13,13],ws:[6.7,10.2,12.1,8.2,0.2,9.7,15.0,11.9,8.9,9.9,12.3,14.0,12.2,14.0,11.9,8.9,5.6,6.3,9.2,9.9,12.2,13.9,13.5,14.3],tmp:[74.6,69.5,66.1,64.9,65.2,64.9,64.7,65.2,65.0,64.3,63.1,62.9,64.5,66.7,69.0,72.4,75.3,77.1,77.6,80.9,81.1,81.8,81.1,78.9]},
+  {date:"2026-05-17",dow:"Sun",ta:71.1,tx:81.8,tn:62.9,wm:17.6,pp:[26,26,26,26,26,26,26,26,26,6,6,6,6,5,5,5,5,5,5,33,33,33,33,33],ws:[12.5,11.4,11.9,12.5,13.5,13.0,13.9,14.3,13.0,10.7,9.7,9.5,10.0,11.9,12.5,13.5,15.7,11.9,13.0,9.5,10.2,11.9,12.5,8.8],tmp:[77.1,74.8,73.5,72.1,70.8,69.7,70.1,69.4,68.1,67.6,68.6,68.3,69.5,71.9,74.9,77.8,80.2,82.5,84.1,85.2,85.6,84.7,81.3,76.6]},
+  {date:"2026-05-18",dow:"Mon",ta:75.6,tx:85.6,tn:67.6,wm:23.1,pp:[33,34,34,34,34,34,34,47,47,47,47,47,47,49,49,49,49,49,49,57,57,57,57,57],ws:[21.9,20.6,18.9,16.0,12.0,11.1,13.2,13.6,12.7,11.9,11.7,11.6,11.1,10.3,9.7,9.5,10.0,10.7,11.1,10.9,10.6,10.6,10.1,9.4],tmp:[73.3,73.0,74.0,73.9,71.0,66.8,63.1,59.9,57.2,55.1,54.1,53.7,54.1,55.5,57.7,59.8,61.8,63.7,64.9,65.0,64.6,63.8,62.7,61.3]},
+  {date:"2026-05-19",dow:"Tue",ta:63.4,tx:74.0,tn:53.7,wm:21.9,pp:[57,48,48,48,48,48,48,39,39,39,39,39,39,15,15,15,15,20,20,20,20,20,20,18],ws:[8.8,8.0,7.3,6.6,6.6,6.7,6.8,6.6,6.3,6.2,6.3,6.5,6.3,6.5,9.2,9.9,5.2,13.2,9.7,7.7,13.9,22.6,13.7,17.6],tmp:[59.8,57.9,55.9,54.1,52.6,51.5,51.0,51.3,52.0,52.8,53.1,53.4,54.6,57.9,62.1,64.3,62.8,59.3,56.8,56.7,57.4,57.5,55.9,53.4]},
+  {date:"2026-05-20",dow:"Wed",ta:56.3,tx:64.3,tn:51.0,wm:13.9,pp:[20,18,18,18,18,18,18,13,13,13,13,13,13,13,13,13,13,26,26,26,26,26,26,26],ws:[13.5,16.7,20.0,18.4,10.7,13.3,14.3,13.0,13.5,16.7,13.9,11.6,11.1,10.3,9.7,9.5,10.0,10.7,11.1,10.9,10.6,10.6,10.1,9.4],tmp:[59.8,57.9,55.9,54.1,52.6,51.5,51.0,51.3,52.0,52.8,53.1,53.4,54.6,57.9,62.1,64.3,62.8,59.3,56.8,56.7,57.4,57.5,55.9,53.4]},
+  {date:"2026-05-21",dow:"Thu",ta:55.8,tx:68.8,tn:46.5,wm:18.4,pp:[0,0,0,0,0,0,0,0,0,0,0,0,0,5,5,5,5,33,33,33,33,33,47,47],ws:[13.9,13.5,16.7,20.0,18.4,10.7,13.3,14.3,13.0,13.5,16.7,20.0,13.0,10.7,9.7,9.5,10.0,10.7,11.1,10.9,10.6,10.6,10.1,9.4],tmp:[59.8,57.9,55.9,54.1,52.6,51.5,51.0,51.3,52.0,52.8,53.1,53.4,54.6,57.9,62.1,64.3,67.6,68.8,68.3,67.6,66.1,64.9,63.4,61.3]},
+  {date:"2026-05-22",dow:"Fri",ta:58.4,tx:65.4,tn:50.3,wm:10.7,pp:[47,48,48,48,48,48,48,39,39,39,39,39,39,15,15,15,15,13,13,13,13,13,13,13],ws:[9.4,8.8,7.3,6.6,6.6,6.7,6.8,6.6,6.3,6.2,6.3,6.5,6.3,6.5,9.2,9.9,5.2,8.3,7.7,6.3,9.2,9.9,12.1,8.9],tmp:[51.5,50.7,50.3,48.2,46.5,45.2,44.2,45.2,48.9,51.4,53.1,52.3,54.0,56.7,59.0,61.4,63.8,65.4,64.9,62.9,59.9,57.2,55.1,53.7]},
+  {date:"2026-05-23",dow:"Sat",ta:64.5,tx:78.4,tn:54.4,wm:13.3,pp:[13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13],ws:[9.5,10.2,11.9,12.5,8.8,8.6,8.8,8.9,6.3,5.4,10.1,11.6,16.4,13.3,9.9,12.3,13.0,11.4,11.9,12.5,13.5,15.7,11.9,13.0],tmp:[54.4,52.6,51.5,51.0,51.3,52.0,52.8,56.2,62.1,64.3,67.6,68.8,70.4,71.9,74.9,77.8,78.4,77.1,73.1,74.8,78.9,77.8,75.3,72.4]},
+  {date:"2026-05-24",dow:"Sun",ta:72.9,tx:85.1,tn:64.0,wm:14.3,pp:[13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13],ws:[12.5,11.4,11.9,12.5,13.5,13.0,13.9,14.3,13.0,10.7,9.7,9.5,10.0,11.9,12.5,13.5,15.7,11.9,13.0,9.5,10.2,11.9,12.5,8.8],tmp:[64.0,63.4,59.3,56.6,54.8,53.8,52.7,51.9,51.6,52.2,52.5,52.3,51.2,52.5,55.4,57.4,59.9,62.3,66.5,71.3,73.7,74.6,75.1,73.9]},
+  {date:"2026-05-25",dow:"Mon",ta:75.1,tx:85.3,tn:65.9,wm:13.0,pp:[14,14,14,14,14,14,14,14,14,14,14,14,14,14,14,14,14,14,14,14,14,14,14,14],ws:[8.8,8.6,8.8,8.9,6.3,5.4,10.1,11.6,16.4,13.0,11.9,13.0,9.5,10.2,11.9,12.5,13.5,13.0,13.9,12.5,11.4,11.9,12.5,8.8],tmp:[65.9,63.4,61.9,58.6,55.8,53.8,52.7,51.9,53.6,65.9,66.5,68.3,69.5,71.9,74.9,77.8,80.2,82.5,84.1,85.2,85.3,84.7,81.3,76.6]},
+  {date:"2026-05-26",dow:"Tue",ta:73.1,tx:83.6,tn:65.8,wm:13.5,pp:[26,26,26,26,26,26,26,26,26,26,26,26,26,26,26,26,26,26,26,26,26,26,26,26],ws:[8.8,8.6,8.8,8.9,6.3,5.4,10.1,11.6,16.4,13.0,11.9,13.0,9.5,10.2,11.9,12.5,13.5,13.0,13.9,12.5,11.4,11.9,12.5,8.8],tmp:[65.8,63.4,61.3,58.6,54.8,53.8,65.8,65.8,65.2,63.6,67.6,68.3,69.5,71.9,74.9,77.8,80.2,82.5,83.6,82.9,81.3,79.7,76.6,73.9]},
+  {date:"2026-05-27",dow:"Wed",ta:61.6,tx:71.9,tn:56.0,wm:16.7,pp:[21,21,21,21,21,21,21,21,21,21,21,21,21,21,21,21,21,21,21,21,21,21,21,21],ws:[13.5,16.7,20.0,18.4,10.7,13.3,14.3,13.0,13.5,16.7,13.9,11.6,16.4,13.0,11.9,12.5,13.5,13.0,13.9,12.5,11.4,11.9,12.5,8.8],tmp:[56.0,54.1,52.6,51.5,51.0,51.3,52.0,52.8,56.2,62.1,64.3,67.6,68.8,70.4,71.9,68.8,63.8,59.3,56.8,57.4,57.5,55.9,53.4,51.5]},
+  {date:"2026-05-28",dow:"Thu",ta:55.1,tx:61.7,tn:47.1,wm:20.0,pp:[21,21,21,21,21,21,21,21,21,21,21,21,21,21,21,21,21,21,21,21,21,21,21,21],ws:[17.6,18.4,21.0,20.0,18.4,10.7,13.3,14.3,13.0,13.5,16.7,20.0,13.0,10.7,9.7,9.5,10.0,10.7,11.1,10.9,10.6,10.6,10.1,9.4],tmp:[51.5,50.7,50.3,48.2,47.1,48.2,49.4,50.7,52.6,54.1,55.9,57.2,59.8,61.7,60.2,57.9,55.9,54.1,52.6,51.5,51.0,51.3,50.7,49.4]},
+];
+
+function genTimes(){
+  const t=[];let h=5,m=0;
+  while(h<19||(h===19&&m===0)){
+    t.push({h,m,label:fmt12(h,m),id:`${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}`});
+    m+=10;if(m>=60){m=0;h++;}
+  }
+  return t;
+}
+function fmt12(h,m){
+  const ap=h<12?'am':'pm',hh=h===0?12:h>12?h-12:h;
+  return `${hh}:${String(m).padStart(2,'0')} ${ap}`;
+}
+const ALL_TIMES=genTimes();
+
+const DOW_CFG={
+  Mon:{m:0.82,bw:48,br:68,twBw:43,twBr:63,stBw:27,stBr:40,wk:false},
+  Tue:{m:0.85,bw:48,br:68,twBw:43,twBr:63,stBw:27,stBr:40,wk:false},
+  Wed:{m:0.90,bw:48,br:68,twBw:43,twBr:63,stBw:27,stBr:40,wk:false},
+  Thu:{m:0.95,bw:48,br:68,twBw:43,twBr:63,stBw:27,stBr:40,wk:false},
+  Fri:{m:1.10,bw:48,br:68,twBw:43,twBr:63,stBw:27,stBr:40,wk:true},
+  Sat:{m:1.40,bw:58,br:78,twBw:53,twBr:73,stBw:32,stBr:45,wk:true},
+  Sun:{m:1.30,bw:58,br:78,twBw:53,twBr:73,stBw:32,stBr:45,wk:true},
+};
+
+function slotInfo(h){
+  if(h<7)  return {type:'supertwi',mult:0.65,label:'early',    holes:9};
+  if(h<10) return {type:'regular', mult:1.30,label:'prime',    holes:18};
+  if(h<12) return {type:'regular', mult:1.08,label:'lateMorn', holes:18};
+  if(h<14) return {type:'regular', mult:0.92,label:'afternoon',holes:18};
+  if(h<15) return {type:'twilight',mult:0.95,label:'afternoon',holes:18};
+  if(h<17) return {type:'twilight',mult:0.88,label:'twilight', holes:18};
+  return           {type:'supertwi',mult:0.75,label:'twilight', holes:9};
+}
+function historicFill(h){
+  if(h<7) return 35;if(h<9) return 88;if(h<11) return 75;
+  if(h<13) return 60;if(h<15) return 48;if(h<17) return 40;return 30;
+}
+function calcPrice(f,dow,h){
+  const cfg=DOW_CFG[dow],si=slotInfo(h),riding=cartMode==='ride';
+  const base=si.type==='supertwi'?(riding?cfg.stBr:cfg.stBw):si.type==='twilight'?(riding?cfg.twBr:cfg.twBw):(riding?cfg.br:cfg.bw);
+  const FLOOR=si.type==='supertwi'?(riding?28:18):si.type==='twilight'?(riding?42:30):(riding?50:35);
+  const CEIL =si.type==='supertwi'?(riding?50:36):si.type==='twilight'?(riding?74:54):(riding?82:60);
+  const t=f.tmp[h]||f.ta,tp=t<50?(50-t)*.01:t>90?(t-90)*.007:0;
+  const hp=f.pp[h]||0,hw=f.ws[h]||f.wm;
+  const wm=Math.max(0.65,(1-tp)*Math.max(0.62,1-hp/100*.4)*Math.max(0.8,1-hw*.006));
+  const fm=0.80+(historicFill(h)/100)*.38;
+  return Math.round(Math.min(CEIL,Math.max(FLOOR,base*cfg.m*si.mult*wm*fm)));
+}
+function slotsAvail(ds,ts){
+  let h=0;for(const c of ds+ts){h=(h*31+c.charCodeAt(0))&0xffff;}return 4-(h%4);
+}
+
+let selIdx=null,cartMode='ride',tf='all',selTime=null,memberMode='public',selAvail=4;
+
+// Calendar navigation state
+const MONTH_NAMES=['January','February','March','April','May','June','July','August','September','October','November','December'];
+let calYear=2026, calMonth=4; // 0-indexed month, start on May 2026
+
+function calNav(dir){
+  let nm=calMonth+dir, ny=calYear;
+  if(nm>11){nm=0;ny++;}
+  if(nm<0){nm=11;ny--;}
+  // Don't go before the month of the earliest FC date
+  const firstDate=new Date(FC[0].date+'T12:00:00');
+  const firstY=firstDate.getFullYear(), firstM=firstDate.getMonth();
+  if(ny<firstY||(ny===firstY&&nm<firstM)) return;
+  calMonth=nm; calYear=ny;
+  buildCal();
+}
+
+function buildCal(){
+  document.getElementById('cal-month-lbl').textContent=MONTH_NAMES[calMonth]+' '+calYear;
+  const g=document.getElementById('cal-grid');g.innerHTML='';
+
+  // Days in this month and first day of week
+  const daysInMonth=new Date(calYear,calMonth+1,0).getDate();
+  const firstDow=new Date(calYear,calMonth,1).getDay();
+
+  // Disable prev if at or before the first available forecast month
+  const firstDate=new Date(FC[0].date+'T12:00:00');
+  const firstY=firstDate.getFullYear(), firstM=firstDate.getMonth();
+  const atFirst=(calYear===firstY&&calMonth===firstM)||(calYear<firstY)||(calYear===firstY&&calMonth<firstM);
+  document.getElementById('cal-prev').style.opacity=atFirst?'.25':'1';
+  document.getElementById('cal-prev').style.pointerEvents=atFirst?'none':'';
+
+  // Offset blank cells
+  for(let i=0;i<firstDow;i++){const e=document.createElement('div');e.className='cal-day ghost';g.appendChild(e);}
+
+  for(let d=1;d<=daysInMonth;d++){
+    const ds=`${calYear}-${String(calMonth+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    const fi=FC.findIndex(f=>f.date===ds);
+    const btn=document.createElement('button');
+    if(fi>=0){
+      btn.className='cal-day avail'+(selIdx===fi?' active':'');
+      btn.textContent=d;
+      btn.onclick=()=>{selIdx=fi;selTime=null;renderAll();};
+    } else {
+      btn.className='cal-day';btn.style.opacity='.22';btn.style.cursor='default';btn.disabled=true;
+      btn.textContent=d;
+    }
+    g.appendChild(btn);
+  }
+}
+
+const GROUPS=[
+  {key:'early',    label:'Early bird',   sub:'5:00–6:50 am',  holes:9,       test:h=>h<7},
+  {key:'prime',    label:'Prime time',   sub:'7:00–9:50 am',  holes:null,    test:h=>h>=7&&h<10},
+  {key:'lateMorn', label:'Late morning', sub:'10:00–11:50 am',holes:null,    test:h=>h>=10&&h<12},
+  {key:'afternoon',label:'Afternoon',    sub:'12:00–2:50 pm', holes:null,    test:h=>h>=12&&h<15},
+  {key:'twilight', label:'Twilight',     sub:'3:00 pm onward',holes:'varies',test:h=>h>=15},
+];
+
+function renderList(){
+  const list=document.getElementById('tee-list');
+  if(selIdx===null){
+    list.innerHTML='<div class="empty"><span class="empty-icon">⛳</span><h3>Pick a date to get started</h3><p>Select any available date on the left to browse tee times and pricing.</p></div>';
+    return;
+  }
+  const f=FC[selIdx],dt=new Date(f.date+'T12:00:00');
+  document.getElementById('ctitle').textContent=dt.toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric'});
+  document.getElementById('csub').textContent=`${cartMode==='ride'?'Riding cart':'Walking'} · Tee times every 10 minutes`;
+
+  const matchG=g=>tf==='all'||tf===g.key||(tf==='afternoon'&&(g.key==='afternoon'||g.key==='lateMorn'));
+  const isMember=memberMode==='member';
+
+  let html='',cnt=0;
+  GROUPS.forEach(grp=>{
+    if(!matchG(grp)) return;
+    const times=ALL_TIMES.filter(t=>grp.test(t.h));
+    if(!times.length) return;
+    let holesTag='';
+    if(grp.holes===9) holesTag=`<span class="tgl-holes">9 holes</span>`;
+    else if(grp.holes==='varies') holesTag=`<span class="tgl-holes">9 holes after 5 pm</span>`;
+    html+=`<div class="time-group"><div class="time-group-label">${grp.label} <span style="opacity:.5;font-weight:400;letter-spacing:0;text-transform:none;font-size:10px">${grp.sub}</span>${holesTag}</div><div class="tee-grid">`;
+    times.forEach(t=>{
+      const price=calcPrice(f,f.dow,t.h);
+      const avail=slotsAvail(f.date,t.id);
+      const si=slotInfo(t.h);
+      const isSel=selTime===t.id,isLim=avail===1;
+      const holesNote=si.holes===9?`<div class="tee-holes-note">9 holes</div>`:'';
+      const availText=avail===1?'Last spot':avail+' spots open';
+      cnt++;
+      let dots='';for(let i=0;i<4;i++) dots+=`<div class="slot-dot${i<(4-avail)?' taken':''}"></div>`;
+      if(isMember){
+        html+=`<div class="tee-card${isSel?' selected':''}${isLim?' limited':''}" onclick="pick('${t.id}','${t.label}',0,${si.holes},${avail})">
+          <div class="tee-time-wrap"><div class="tee-time">${t.h===0?12:t.h>12?t.h-12:t.h}:${String(t.m).padStart(2,'0')}<span class="tee-ampm">${t.h<12?'am':'pm'}</span></div>${holesNote}</div>
+          <div class="tee-meta"><div class="tee-slots">${dots}<span class="slots-lbl">${availText}</span></div></div>
+          <div class="price-member">Included with<br>membership</div>
+          <button class="book-btn-member" onclick="event.stopPropagation();pick('${t.id}','${t.label}',0,${si.holes},${avail})">Book</button>
+        </div>`;
+      } else {
+        html+=`<div class="tee-card${isSel?' selected':''}" onclick="pick('${t.id}','${t.label}',${price},${si.holes},${avail})">
+          <div class="tee-time-wrap"><div class="tee-time">${t.h===0?12:t.h>12?t.h-12:t.h}:${String(t.m).padStart(2,'0')}<span class="tee-ampm">${t.h<12?'am':'pm'}</span></div>${holesNote}</div>
+          <div class="tee-meta"><div class="tee-slots">${dots}<span class="slots-lbl">${availText}</span></div></div>
+          <div class="tee-price"><div class="price-val">$${price}</div><div class="price-per">${cartMode==='ride'?'w/ cart':'walking'}</div></div>
+          <button class="book-btn" onclick="event.stopPropagation();pick('${t.id}','${t.label}',${price},${si.holes},${avail})">Select</button>
+        </div>`;
+      }
+    });
+    html+='</div></div>';
+  });
+  list.innerHTML=html||'<div class="empty"><span class="empty-icon">🔍</span><h3>No times found</h3><p>Try a different filter.</p></div>';
+  document.getElementById('rcount').textContent=cnt+' tee times available';
+}
+
+function pick(id,label,price,holes,avail){
+  selTime=id;
+  selAvail=avail;
+  const f=FC[selIdx],dt=new Date(f.date+'T12:00:00');
+  const isMember=memberMode==='member';
+  document.getElementById('p-date').textContent=dt.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'});
+  document.getElementById('p-time').textContent=label;
+  document.getElementById('p-cart').textContent=(cartMode==='ride'?'Riding':'Walking')+(holes===9?' · 9 holes':'');
+  document.getElementById('p-price').textContent=isMember?'Membership':'$'+price;
+  document.getElementById('sel-panel').classList.add('visible');
+  renderList();
+}
+
+function doConfirm(){
+  const f=FC[selIdx],dt=new Date(f.date+'T12:00:00');
+  const isMember=memberMode==='member';
+  const dateStr=dt.toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric'});
+  const timeStr=document.getElementById('p-time').textContent;
+  const cartStr=document.getElementById('p-cart').textContent;
+  const priceStr=document.getElementById('p-price').textContent;
+  const price=isMember?0:parseInt(priceStr.replace('$',''))||0;
+  const si=selTime?slotInfo(parseInt(selTime.split(':')[0])):null;
+  const isNineOnly=si?si.holes===9:false;
+  openBookingModal({date:dateStr,time:timeStr,cart:cartStr,price:price,isMember:isMember,isNineOnly:isNineOnly,avail:selAvail});
+}
+
+function setCart(m){
+  cartMode=m;
+  document.getElementById('btn-walk').classList.toggle('active',m==='walk');
+  document.getElementById('btn-ride').classList.toggle('active',m==='ride');
+  renderList();
+}
+
+function setTF(v,btn){
+  tf=v;
+  document.querySelectorAll('#tfrow .filter-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  renderList();
+}
+
+function setMember(v){
+  memberMode=v;
+  document.getElementById('member-badge').classList.toggle('visible',v==='member');
+  selTime=null;
+  document.getElementById('sel-panel').classList.remove('visible');
+  renderList();
+}
+
+function renderAll(){buildCal();renderList();}
+buildCal();
+</script>
+
+<!-- ══════════════════════════════════════════════════
+     BOOKING MODAL
+══════════════════════════════════════════════════ -->
+<div class="modal-overlay" id="modal-overlay" onclick="overlayClick(event)">
+  <div class="modal" id="modal">
+
+    <!-- STEPS BAR -->
+    <div class="modal-steps" id="modal-steps">
+      <div class="step-item"><div class="step-dot active" id="sd1">1</div><span id="sl1">Book</span></div>
+      <span class="step-arrow">›</span>
+      <div class="step-item"><div class="step-dot" id="sd2">2</div><span id="sl2">Sign in</span></div>
+      <span class="step-arrow">›</span>
+      <div class="step-item"><div class="step-dot" id="sd3">3</div><span id="sl3">Confirm</span></div>
+    </div>
+
+    <!-- MODAL HEADER -->
+    <div class="modal-header">
+      <div class="modal-title" id="modal-title">Reserve your tee time</div>
+      <button class="modal-close" onclick="closeModal()">×</button>
+    </div>
+
+    <!-- ── STEP 1: BOOKING ── -->
+    <div id="ms-booking" style="display:none;flex-direction:column;flex:1;min-height:0;overflow:hidden">
+      <div class="modal-body">
+        <div class="timer-banner">
+          <span>⏱</span>
+          <span>Your tee time will be held for <strong>5:00</strong>. You have <span class="timer-clock" id="modal-timer">5:00</span> remaining. Please complete the reservation process.</span>
+        </div>
+        <div class="bk-row">
+          <div class="bk-cell"><div class="bk-lbl">Date</div><div class="bk-val" id="mb-date">—</div></div>
+          <div class="bk-cell"><div class="bk-lbl">Time</div><div class="bk-val" id="mb-time">—</div></div>
+          <div class="bk-cell"><div class="bk-lbl">Cart</div><div class="bk-val" id="mb-cart">—</div></div>
+        </div>
+
+        <div class="sel-group" id="holes-group">
+          <div class="sel-group-lbl">Holes</div>
+          <div class="seg" id="holes-seg">
+            <button class="seg-btn" id="h9"  onclick="setHoles(9)">9</button>
+            <button class="seg-btn" id="h18" onclick="setHoles(18)">18</button>
+          </div>
+          <div class="seg-err" id="holes-err">Please select the number of holes to play.</div>
+        </div>
+
+        <div class="sel-group">
+          <div class="sel-group-lbl">Players</div>
+          <div class="player-grid" id="player-grid"></div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="mbtn-secondary" onclick="closeModal()">Close</button>
+        <button class="mbtn-primary" onclick="goToLogin()">Continue →</button>
+      </div>
+    </div>
+
+    <!-- ── STEP 2: LOGIN ── -->
+    <div id="ms-login" style="display:none;flex-direction:column;flex:1;min-height:0;overflow:hidden">
+      <div class="modal-body">
+        <div id="ms-login-form">
+          <p style="font-size:13px;color:var(--text-light);margin-bottom:20px;line-height:1.5">Sign in to your Springbrook account or continue as a guest.</p>
+          <div id="member-tag-login" style="display:none"><div class="mem-tag">✦ Brooks Links Member detected</div></div>
+          <div class="mf-group">
+            <label class="mf-lbl">Email address</label>
+            <input class="mf-input" type="email" id="li-email" placeholder="you@example.com">
+            <div class="mf-err" id="li-err-email">Enter a valid email address.</div>
+          </div>
+          <div class="mf-group">
+            <label class="mf-lbl">Password</label>
+            <input class="mf-input" type="password" id="li-password" placeholder="••••••••">
+            <div class="mf-err" id="li-err-pass">Incorrect email or password.</div>
+          </div>
+          <div style="text-align:right;margin:-8px 0 16px">
+            <span class="mlink" onclick="goForgot()">Forgot password?</span>
+          </div>
+          <button class="mbtn-primary" style="width:100%;margin-bottom:10px" onclick="handleLogin()">Sign in &amp; continue</button>
+          <div class="or-div">or</div>
+          <button class="mbtn-secondary" style="width:100%" onclick="goGuestCheckout()">Continue as guest</button>
+        </div>
+
+        <!-- FORGOT PASSWORD -->
+        <div id="ms-forgot" style="display:none">
+          <button style="background:none;border:none;font-size:12px;color:var(--text-light);cursor:pointer;margin-bottom:16px;padding:0;font-family:'DM Sans',sans-serif" onclick="backToLogin()">← Back to sign in</button>
+          <div style="font-size:15px;font-weight:500;color:var(--green-dark);margin-bottom:6px">Reset your password</div>
+          <p style="font-size:13px;color:var(--text-light);margin-bottom:20px;line-height:1.5">Enter the email address on your account and we'll send you a 6-digit code.</p>
+          <div class="mf-group">
+            <label class="mf-lbl">Email address</label>
+            <input class="mf-input" type="email" id="fp-email" placeholder="you@example.com">
+            <div class="mf-err" id="fp-err">Enter a valid email address.</div>
+          </div>
+          <button class="mbtn-primary" style="width:100%" onclick="sendResetCode()">Send code</button>
+        </div>
+
+        <!-- VERIFY CODE -->
+        <div id="ms-verify" style="display:none">
+          <button style="background:none;border:none;font-size:12px;color:var(--text-light);cursor:pointer;margin-bottom:16px;padding:0;font-family:'DM Sans',sans-serif" onclick="backToForgot()">← Back</button>
+          <div style="font-size:15px;font-weight:500;color:var(--green-dark);margin-bottom:6px">Check your email</div>
+          <p style="font-size:13px;color:var(--text-light);margin-bottom:4px;line-height:1.5">We sent a 6-digit code to <strong id="verify-email-lbl">your email</strong>.</p>
+          <p style="font-size:12px;color:var(--text-light);margin-bottom:4px">Didn't get it? <span class="mlink" onclick="sendResetCode()">Resend code</span></p>
+          <div class="code-inputs">
+            <input class="code-box" maxlength="1" type="text" inputmode="numeric" oninput="codeInput(this,0)">
+            <input class="code-box" maxlength="1" type="text" inputmode="numeric" oninput="codeInput(this,1)">
+            <input class="code-box" maxlength="1" type="text" inputmode="numeric" oninput="codeInput(this,2)">
+            <input class="code-box" maxlength="1" type="text" inputmode="numeric" oninput="codeInput(this,3)">
+            <input class="code-box" maxlength="1" type="text" inputmode="numeric" oninput="codeInput(this,4)">
+            <input class="code-box" maxlength="1" type="text" inputmode="numeric" oninput="codeInput(this,5)">
+          </div>
+          <div id="code-err" style="font-size:11px;color:#c0392b;text-align:center;display:none;margin-bottom:12px">Incorrect code. Try again. (Demo code: 123456)</div>
+          <button class="mbtn-primary" style="width:100%" onclick="verifyCode()">Verify &amp; reset password</button>
+        </div>
+
+        <!-- NEW PASSWORD -->
+        <div id="ms-newpass" style="display:none">
+          <div style="font-size:15px;font-weight:500;color:var(--green-dark);margin-bottom:6px">Create a new password</div>
+          <p style="font-size:13px;color:var(--text-light);margin-bottom:20px;line-height:1.5">Choose a strong password for your account.</p>
+          <div class="mf-group">
+            <label class="mf-lbl">New password</label>
+            <input class="mf-input" type="password" id="np-pass" placeholder="At least 8 characters">
+            <div class="mf-err" id="np-err">Password must be at least 8 characters.</div>
+          </div>
+          <div class="mf-group">
+            <label class="mf-lbl">Confirm password</label>
+            <input class="mf-input" type="password" id="np-confirm" placeholder="Repeat password">
+            <div class="mf-err" id="np-err2">Passwords don't match.</div>
+          </div>
+          <button class="mbtn-primary" style="width:100%" onclick="saveNewPassword()">Save new password</button>
+        </div>
+      </div>
+      <div class="modal-footer" id="login-footer">
+        <button class="mbtn-secondary" onclick="goBackToBooking()">← Back</button>
+      </div>
+    </div>
+
+    <!-- ── STEP 3: CHECKOUT ── -->
+    <div id="ms-checkout" style="display:none;flex-direction:column;flex:1;min-height:0;overflow:hidden">
+      <div class="modal-body">
+        <div id="co-member-tag" style="display:none"><div class="mem-tag">✦ Brooks Links Member</div></div>
+
+        <!-- Booking summary -->
+        <div class="confirm-rows" style="margin-top:0;margin-bottom:20px">
+          <div class="confirm-row"><span class="confirm-row-lbl">Date</span><span class="confirm-row-val" id="co-sum-date">—</span></div>
+          <div class="confirm-row"><span class="confirm-row-lbl">Time</span><span class="confirm-row-val" id="co-sum-time">—</span></div>
+          <div class="confirm-row"><span class="confirm-row-lbl">Cart</span><span class="confirm-row-val" id="co-sum-cart">—</span></div>
+          <div class="confirm-row"><span class="confirm-row-lbl">Holes</span><span class="confirm-row-val" id="co-sum-holes">—</span></div>
+          <div class="confirm-row"><span class="confirm-row-lbl">Players</span><span class="confirm-row-val" id="co-sum-players">—</span></div>
+          <div class="confirm-row" style="padding-top:8px;border-top:1px solid var(--cream-dark);margin-top:6px"><span class="confirm-row-lbl" style="font-weight:500">Total</span><span class="confirm-row-val" style="font-size:16px;color:var(--green-dark)" id="co-sum-price">—</span></div>
+        </div>
+
+        <div class="mf-row">
+          <div class="mf-group"><label class="mf-lbl">First name</label><input class="mf-input" type="text" id="co-first" placeholder="Jane"><div class="mf-err" id="co-err-first">Required</div></div>
+          <div class="mf-group"><label class="mf-lbl">Last name</label><input class="mf-input" type="text" id="co-last" placeholder="Smith"><div class="mf-err" id="co-err-last">Required</div></div>
+        </div>
+        <div class="mf-group"><label class="mf-lbl">Email</label><input class="mf-input" type="email" id="co-email" placeholder="you@example.com"><div class="mf-err" id="co-err-email">Enter a valid email</div></div>
+        <div class="mf-group"><label class="mf-lbl">Phone <span style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--text-light)">(optional)</span></label><input class="mf-input" type="tel" id="co-phone" placeholder="(555) 555-5555"></div>
+
+        <!-- Payment — hidden for members -->
+        <div id="co-payment">
+          <div style="font-size:12px;font-weight:500;color:var(--text-mid);margin:4px 0 10px;padding-top:14px;border-top:1px solid var(--cream-dark)">Payment</div>
+          <div class="mf-group"><label class="mf-lbl">Card number</label><input class="mf-input" type="text" id="co-card" placeholder="1234 5678 9012 3456" maxlength="19" oninput="fmtCard(this)"><div class="mf-err" id="co-err-card">Enter a valid card number</div></div>
+          <div class="mf-row">
+            <div class="mf-group">
+              <label class="mf-lbl">Expiration</label>
+              <div style="display:flex;align-items:center;gap:0;border:1px solid var(--cream-dark);border-radius:7px;background:var(--cream);overflow:hidden;transition:border-color .12s" id="exp-wrap">
+                <input style="flex:1;border:none;background:transparent;padding:10px 0 10px 13px;font-family:'DM Sans',sans-serif;font-size:14px;color:var(--text);outline:none;width:42px;min-width:0" type="text" id="co-exp-mm" placeholder="MM" maxlength="2" inputmode="numeric" oninput="fmtMM(this)" onfocus="document.getElementById('exp-wrap').style.borderColor='var(--green-light)'" onblur="document.getElementById('exp-wrap').style.borderColor=''">
+                <span style="color:var(--text-light);font-size:16px;padding:0 2px;user-select:none">/</span>
+                <input style="flex:1;border:none;background:transparent;padding:10px 13px 10px 2px;font-family:'DM Sans',sans-serif;font-size:14px;color:var(--text);outline:none;width:42px;min-width:0" type="text" id="co-exp-yy" placeholder="YY" maxlength="2" inputmode="numeric" oninput="fmtYY(this)" onfocus="document.getElementById('exp-wrap').style.borderColor='var(--green-light)'" onblur="document.getElementById('exp-wrap').style.borderColor=''">
+              </div>
+              <div class="mf-err" id="co-err-exp">Invalid expiration date</div>
+            </div>
+            <div class="mf-group"><label class="mf-lbl">CVC</label><input class="mf-input" type="text" id="co-cvc" placeholder="123" maxlength="4" inputmode="numeric"><div class="mf-err" id="co-err-cvc">Invalid</div></div>
+          </div>
+        </div>
+
+        <div class="mf-group"><label class="mf-lbl">Special requests <span style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--text-light)">(optional)</span></label><textarea class="mf-input" id="co-notes" rows="2" placeholder="Accessibility needs, club rental, group preferences…" style="resize:vertical"></textarea></div>
+        <div class="cb-row"><input type="checkbox" id="co-terms"><label class="cb-lbl" for="co-terms">I agree to Springbrook Golf Course's <span class="mlink">terms and conditions</span> and <span class="mlink">cancellation policy</span>.</label></div>
+
+        <!-- FIX 2: Confirm button inside scrollable body so it's always reachable -->
+        <button class="mbtn-primary" onclick="handleCheckout()" style="width:100%;margin-top:8px;padding:14px">Confirm booking</button>
+        <div style="text-align:center;font-size:11px;color:var(--text-light);margin-top:8px;margin-bottom:4px">🔒 Your information is encrypted and secure</div>
+      </div>
+      <div class="modal-footer">
+        <button class="mbtn-secondary" onclick="goBackToLogin()">← Back</button>
+      </div>
+    </div>
+
+    <!-- ── STEP 4: CONFIRMATION ── -->
+    <div id="ms-confirm" style="display:none;flex-direction:column;flex:1;min-height:0;overflow:hidden">
+      <div class="modal-body" style="text-align:center">
+        <div class="confirm-icon">⛳</div>
+        <div style="font-family:'Playfair Display',serif;font-size:21px;font-weight:500;color:var(--green-dark);margin-bottom:6px">You're all set!</div>
+        <p style="font-size:13px;color:var(--text-light);margin-bottom:4px;line-height:1.5" id="conf-sub">Your tee time is confirmed.</p>
+        <div class="confirm-rows">
+          <div class="confirm-row"><span class="confirm-row-lbl">Course</span><span class="confirm-row-val">Springbrook Golf Course</span></div>
+          <div class="confirm-row"><span class="confirm-row-lbl">Date</span><span class="confirm-row-val" id="conf-date">—</span></div>
+          <div class="confirm-row"><span class="confirm-row-lbl">Time</span><span class="confirm-row-val" id="conf-time">—</span></div>
+          <div class="confirm-row"><span class="confirm-row-lbl">Holes</span><span class="confirm-row-val" id="conf-holes">—</span></div>
+          <div class="confirm-row"><span class="confirm-row-lbl">Players</span><span class="confirm-row-val" id="conf-players">—</span></div>
+          <div class="confirm-row"><span class="confirm-row-lbl">Total</span><span class="confirm-row-val" id="conf-price">—</span></div>
+        </div>
+        <div style="font-size:11px;color:var(--text-light);margin-bottom:4px">Confirmation ref: <strong id="conf-ref">—</strong></div>
+      </div>
+      <div class="modal-footer">
+        <button class="mbtn-secondary" onclick="closeModal()">Back to tee times</button>
+        <button class="mbtn-primary" onclick="closeModal()">Done</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+// ── Demo accounts ───────────────────────────────────────────────
+const ACCOUNTS=[
+  {email:'member@springbrook.com',password:'golf2026',name:'Alex Johnson',isMember:true},
+  {email:'guest@example.com',password:'password1',name:'Sam Williams',isMember:false},
+];
+
+// ── Booking state ───────────────────────────────────────────────
+let MB={date:'',time:'',cart:'',price:0,isMember:false,isNineOnly:false,holes:0,players:0};
+let timerInterval=null, timerSecs=300;
+let loggedUser=null, isGuest=false;
+
+function openBookingModal(b){
+  MB=Object.assign(MB,b);
+  // Reset
+  MB.holes=0; MB.players=0;
+  document.querySelectorAll('.seg-btn').forEach(btn=>btn.classList.remove('active'));
+  document.getElementById('holes-err').classList.remove('show');
+  // Build player buttons based on available spots
+  const maxPlayers=b.avail||4;
+  const pg=document.getElementById('player-grid');
+  pg.innerHTML='';
+  for(let n=1;n<=maxPlayers;n++){
+    const btn=document.createElement('button');
+    btn.className='player-btn';
+    btn.textContent=n;
+    btn.onclick=(()=>{const x=n;return()=>setPlayers(x);})();
+    pg.appendChild(btn);
+  }
+  // Populate
+  document.getElementById('mb-date').textContent=MB.date;
+  document.getElementById('mb-time').textContent=MB.time;
+  document.getElementById('mb-cart').textContent=MB.cart;
+  // 9-only: hide 18 button, auto-select 9
+  const h18=document.getElementById('h18');
+  if(MB.isNineOnly){h18.style.display='none';setHoles(9);}
+  else{h18.style.display='';}
+  // Steps
+  setStep(1);
+  showMs('ms-booking');
+  startTimer();
+  document.getElementById('modal-overlay').classList.add('open');
+  document.body.style.overflow='hidden';
+}
+
+function closeModal(){
+  document.getElementById('modal-overlay').classList.remove('open');
+  document.body.style.overflow='';
+  clearInterval(timerInterval);
+  timerSecs=300;
+}
+
+function overlayClick(e){if(e.target===document.getElementById('modal-overlay'))closeModal();}
+
+// ── Timer ───────────────────────────────────────────────────────
+function startTimer(){
+  clearInterval(timerInterval);
+  timerSecs=300;
+  updateTimerDisplay();
+  timerInterval=setInterval(()=>{
+    timerSecs--;
+    if(timerSecs<=0){clearInterval(timerInterval);closeModal();alert('Your held tee time has expired. Please select a new time.');return;}
+    updateTimerDisplay();
+  },1000);
+}
+function updateTimerDisplay(){
+  const m=Math.floor(timerSecs/60), s=timerSecs%60;
+  document.getElementById('modal-timer').textContent=m+':'+(s<10?'0':'')+s;
+}
+
+// ── Holes / players ─────────────────────────────────────────────
+function setHoles(n){
+  MB.holes=n;
+  document.getElementById('h9').classList.toggle('active',n===9);
+  document.getElementById('h18').classList.toggle('active',n===18);
+  document.getElementById('holes-err').classList.remove('show');
+}
+function setPlayers(n){
+  MB.players=n;
+  document.querySelectorAll('.player-btn').forEach((btn,i)=>btn.classList.toggle('active',i+1===n));
+}
+
+// ── Step nav ────────────────────────────────────────────────────
+function showMs(id){
+  ['ms-booking','ms-login','ms-checkout','ms-confirm'].forEach(s=>{
+    const el=document.getElementById(s);
+    el.style.display=s===id?'flex':'none';
+  });
+  // Login sub-views
+  if(id==='ms-login'){
+    showLoginView('ms-login-form');
+  }
+}
+
+function showLoginView(id){
+  ['ms-login-form','ms-forgot','ms-verify','ms-newpass'].forEach(s=>{
+    document.getElementById(s).style.display=s===id?'':'none';
+  });
+  document.getElementById('login-footer').style.display=id==='ms-login-form'?'flex':'none';
+}
+
+function setStep(n){
+  [1,2,3].forEach(i=>{
+    const dot=document.getElementById('sd'+i);
+    dot.classList.remove('active','done');
+    if(i<n) dot.classList.add('done');
+    else if(i===n) dot.classList.add('active');
+  });
+}
+
+function goToLogin(){
+  if(!MB.holes){document.getElementById('holes-err').classList.add('show');return;}
+  if(!MB.players){alert('Please select number of players.');return;}
+  setStep(2);
+  showMs('ms-login');
+}
+
+function goBackToBooking(){setStep(1);showMs('ms-booking');}
+function goBackToLogin(){setStep(2);showMs('ms-login');}
+function goForgot(){showLoginView('ms-forgot');}
+function backToLogin(){showLoginView('ms-login-form');}
+function backToForgot(){showLoginView('ms-forgot');}
+
+// ── Login ───────────────────────────────────────────────────────
+function handleLogin(){
+  const email=document.getElementById('li-email').value.trim();
+  const pass=document.getElementById('li-password').value;
+  let ok=true;
+  if(!email||!/\S+@\S+\.\S+/.test(email)){setMfErr('li-err-email','li-email',true,'Enter a valid email address.');ok=false;}
+  else setMfErr('li-err-email','li-email',false);
+  if(!pass){setMfErr('li-err-pass','li-password',true,'Password is required.');ok=false;}
+  else setMfErr('li-err-pass','li-password',false);
+  if(!ok) return;
+  const acct=ACCOUNTS.find(a=>a.email.toLowerCase()===email.toLowerCase()&&a.password===pass);
+  if(!acct){setMfErr('li-err-pass','li-password',true,'Incorrect email or password.');return;}
+  loggedUser=acct; isGuest=false;
+  if(acct.isMember) MB.isMember=true;
+  goCheckout();
+}
+
+function goGuestCheckout(){loggedUser=null;isGuest=true;MB.isMember=false;goCheckout();}
+
+function goCheckout(){
+  setStep(3);
+  // Populate summary
+  const priceStr=MB.isMember?'Included with membership':'$'+MB.price;
+  document.getElementById('co-sum-date').textContent=MB.date;
+  document.getElementById('co-sum-time').textContent=MB.time;
+  document.getElementById('co-sum-cart').textContent=MB.cart;
+  document.getElementById('co-sum-holes').textContent=MB.holes+' holes';
+  document.getElementById('co-sum-players').textContent=MB.players+(MB.players===1?' player':' players');
+  document.getElementById('co-sum-price').textContent=priceStr;
+  document.getElementById('co-member-tag').style.display=MB.isMember?'block':'none';
+  document.getElementById('co-payment').style.display=MB.isMember?'none':'block';
+  // Pre-fill if logged in
+  if(loggedUser){
+    document.getElementById('co-email').value=loggedUser.email;
+    const p=loggedUser.name.split(' ');
+    document.getElementById('co-first').value=p[0]||'';
+    document.getElementById('co-last').value=p.slice(1).join(' ')||'';
+  }
+  showMs('ms-checkout');
+}
+
+// ── Forgot password flow ─────────────────────────────────────────
+function sendResetCode(){
+  const email=document.getElementById('fp-email').value.trim();
+  if(!email||!/\S+@\S+\.\S+/.test(email)){
+    document.getElementById('fp-err').classList.add('show');
+    document.getElementById('fp-email').classList.add('err');
+    return;
+  }
+  document.getElementById('fp-err').classList.remove('show');
+  document.getElementById('fp-email').classList.remove('err');
+  document.getElementById('verify-email-lbl').textContent=email;
+  document.querySelectorAll('.code-box').forEach(b=>b.value='');
+  document.getElementById('code-err').style.display='none';
+  showLoginView('ms-verify');
+}
+
+function codeInput(el,idx){
+  el.value=el.value.replace(/[^0-9]/g,'');
+  const boxes=document.querySelectorAll('.code-box');
+  if(el.value&&idx<5) boxes[idx+1].focus();
+}
+
+function verifyCode(){
+  const boxes=document.querySelectorAll('.code-box');
+  const code=Array.from(boxes).map(b=>b.value).join('');
+  if(code.length<6){document.getElementById('code-err').style.display='block';return;}
+  // Demo: accept 123456
+  if(code!=='123456'){document.getElementById('code-err').style.display='block';return;}
+  document.getElementById('code-err').style.display='none';
+  showLoginView('ms-newpass');
+}
+
+function saveNewPassword(){
+  const p1=document.getElementById('np-pass').value;
+  const p2=document.getElementById('np-confirm').value;
+  let ok=true;
+  if(p1.length<8){document.getElementById('np-err').classList.add('show');document.getElementById('np-pass').classList.add('err');ok=false;}
+  else{document.getElementById('np-err').classList.remove('show');document.getElementById('np-pass').classList.remove('err');}
+  if(p1!==p2){document.getElementById('np-err2').classList.add('show');document.getElementById('np-confirm').classList.add('err');ok=false;}
+  else{document.getElementById('np-err2').classList.remove('show');document.getElementById('np-confirm').classList.remove('err');}
+  if(!ok) return;
+  alert('Password updated! You can now sign in with your new password.');
+  showLoginView('ms-login-form');
+}
+
+// ── Checkout ─────────────────────────────────────────────────────
+function fmtCard(el){let v=el.value.replace(/\D/g,'').substring(0,16);el.value=v.replace(/(.{4})/g,'$1 ').trim();}
+function fmtMM(el){
+  el.value=el.value.replace(/[^0-9]/g,'');
+  if(el.value.length===2) document.getElementById('co-exp-yy').focus();
+}
+function fmtYY(el){
+  el.value=el.value.replace(/[^0-9]/g,'');
+}
+function fmtExp(el){let v=el.value.replace(/[^0-9]/g,'').substring(0,4);if(v.length>=3)v=v.substring(0,2)+' / '+v.substring(2);el.value=v;}
+
+function handleCheckout(){
+  const first=document.getElementById('co-first').value.trim();
+  const last=document.getElementById('co-last').value.trim();
+  const email=document.getElementById('co-email').value.trim();
+  const terms=document.getElementById('co-terms').checked;
+  let ok=true;
+  if(!first){setMfErr('co-err-first','co-first',true,'Required');ok=false;}else setMfErr('co-err-first','co-first',false);
+  if(!last){setMfErr('co-err-last','co-last',true,'Required');ok=false;}else setMfErr('co-err-last','co-last',false);
+  if(!email||!/\S+@\S+\.\S+/.test(email)){setMfErr('co-err-email','co-email',true,'Enter a valid email');ok=false;}else setMfErr('co-err-email','co-email',false);
+  if(!MB.isMember){
+    const card=document.getElementById('co-card').value.replace(/\s/g,'');
+    const mm=document.getElementById('co-exp-mm').value;
+    const yy=document.getElementById('co-exp-yy').value;
+    const exp=mm&&yy?mm+'/'+yy:'';
+    const cvc=document.getElementById('co-cvc').value;
+    if(card.length<15){setMfErr('co-err-card','co-card',true,'Enter a valid card number');ok=false;}else setMfErr('co-err-card','co-card',false);
+    if(!mm||mm.length<2||!yy||yy.length<2){
+      document.getElementById('co-err-exp').classList.add('show');ok=false;
+    } else {document.getElementById('co-err-exp').classList.remove('show');}
+    if(!cvc||cvc.length<3){setMfErr('co-err-cvc','co-cvc',true,'Invalid');ok=false;}else setMfErr('co-err-cvc','co-cvc',false);
+  }
+  if(!terms){alert('Please agree to the terms and conditions.');return;}
+  if(!ok) return;
+  // Confirmation
+  clearInterval(timerInterval);
+  document.getElementById('conf-date').textContent=MB.date;
+  document.getElementById('conf-time').textContent=MB.time;
+  document.getElementById('conf-holes').textContent=MB.holes+' holes';
+  document.getElementById('conf-players').textContent=MB.players+(MB.players===1?' player':' players');
+  document.getElementById('conf-price').textContent=MB.isMember?'Included with membership':'$'+MB.price;
+  document.getElementById('conf-ref').textContent='SB-'+Math.random().toString(36).substring(2,8).toUpperCase();
+  document.getElementById('conf-sub').textContent='Your tee time is confirmed, '+first+'. A confirmation has been sent to '+email+'.';
+  showMs('ms-confirm');
+  setStep(3);
+  document.querySelectorAll('#sd1,#sd2,#sd3').forEach(d=>{d.classList.remove('active');d.classList.add('done');});
+}
+
+function setMfErr(errId,inputId,show,msg){
+  const err=document.getElementById(errId);
+  const inp=document.getElementById(inputId);
+  if(show){err.textContent=msg;err.classList.add('show');inp.classList.add('err');}
+  else{err.classList.remove('show');inp.classList.remove('err');}
+}
+</script>
+
+
+<!-- ══ COURSE INFO PANEL ══════════════════════════════════════ -->
+<div class="info-panel-overlay" id="info-panel-overlay" onclick="infoPanelOverlayClick(event)">
+  <div class="info-panel" id="info-panel">
+    <div class="info-panel-header">
+      <div class="info-panel-title">Course Info</div>
+      <button class="info-panel-close" onclick="closeInfoPanel()">×</button>
+    </div>
+    <div class="info-panel-body">
+
+      <div class="info-section">
+        <div class="info-section-title">Contact</div>
+        <div class="info-row">
+          <svg class="info-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.8 19.79 19.79 0 01.22 1.18 2 2 0 012.18 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.91 7.91a16 16 0 006.18 6.18l1.08-1.08a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg>
+          <a href="tel:6308485070" class="info-link">630-848-5070</a>
+        </div>
+        <div class="info-row">
+          <svg class="info-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+          <a href="mailto:Mlyzun@napervilleparks.org" class="info-link">Mlyzun@napervilleparks.org</a>
+        </div>
+        <div class="info-row">
+          <svg class="info-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg>
+          <a href="https://golfnaperville.org/" class="info-link">www.golfnaperville.org</a>
+        </div>
+        <div class="info-row">
+          <svg class="info-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+          <span>2220 W 83rd Street<br>Naperville, IL 60564</span>
+        </div>
+      </div>
+
+      <div class="info-section">
+        <div class="info-section-title">Location</div>
+        <a href="https://maps.google.com/?q=Springbrook+Golf+Course,+2220+W+83rd+St,+Naperville,+IL+60564" target="_blank" rel="noopener noreferrer" style="display:block;text-decoration:none;margin-bottom:20px">
+          <div style="background:#e8f0e4;border-radius:10px;border:1px solid var(--cream-dark);overflow:hidden;position:relative;height:160px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;transition:opacity .15s">
+            <div style="position:absolute;inset:0;background:url('https://maps.googleapis.com/maps/api/staticmap?center=41.73145,-88.18966&zoom=15&size=600x300&markers=color:green%7C41.73145,-88.18966&style=feature:poi.business%7Cvisibility:off') center/cover no-repeat;opacity:.18"></div>
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#1a3a2a" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="position:relative;z-index:1"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+            <div style="position:relative;z-index:1;text-align:center">
+              <div style="font-size:13px;font-weight:500;color:var(--green-dark)">Springbrook Golf Course</div>
+              <div style="font-size:11px;color:var(--text-light);margin-top:2px">2220 W 83rd St · Naperville, IL</div>
+              <div style="font-size:10px;color:var(--green);margin-top:5px;font-weight:500">Open in Google Maps →</div>
+            </div>
+          </div>
+        </a>
+      </div>
+
+      <div class="info-section">
+        <div class="info-section-title">Policies</div>
+
+        <div class="policy-section" onclick="togglePolicy('privacy')">
+          <div class="policy-section-header">
+            Privacy Policy
+            <svg id="privacy-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+          </div>
+          <div class="policy-section-body" id="privacy-body">
+            <p>At Springbrook Golf Course (IL), we are committed to protecting your personal information. This Privacy Policy outlines how we collect, use, and safeguard the data you provide while using our online tee time booking system.</p>
+            <h3>Information Collection</h3>
+            <ul>
+              <li>Name: To personalize your account and tee time bookings.</li>
+              <li>Phone Number: To communicate regarding your bookings and provide updates.</li>
+              <li>Email Address: To send booking confirmations, updates, and relevant information.</li>
+            </ul>
+            <h3>Information Usage</h3>
+            <ul>
+              <li>Account management and tee time booking confirmation.</li>
+              <li>Notifications and updates about your bookings.</li>
+              <li>Marketing communications with your explicit consent — opt out any time.</li>
+            </ul>
+            <h3>Data Protection</h3>
+            <ul>
+              <li>Industry-standard HTTPS encryption for all data transmission.</li>
+              <li>Access restricted to authorized personnel only.</li>
+              <li>Data retained only as long as necessary or required by law.</li>
+            </ul>
+            <h3>Third-Party Disclosure</h3>
+            <p>We do not sell or trade your personal information. No mobile information will be shared with third parties for marketing or promotional purposes.</p>
+          </div>
+        </div>
+
+        <div class="policy-section" onclick="togglePolicy('sms')">
+          <div class="policy-section-header">
+            SMS Terms &amp; Conditions
+            <svg id="sms-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+          </div>
+          <div class="policy-section-body" id="sms-body">
+            <p>Springbrook Golf Course (IL) offers customers the opportunity to engage in conversations and marketing communications via SMS.</p>
+            <h3>Campaigns</h3>
+            <ul>
+              <li><strong>Customer Care:</strong> Tee time reminders, alerts, and support via text. Message frequency varies. Message and data rates may apply.</li>
+              <li><strong>Marketing:</strong> Special offers and events via text. Message frequency varies. Message and data rates may apply.</li>
+            </ul>
+            <h3>Stop and Help</h3>
+            <ul>
+              <li>Text <strong>STOP</strong> to opt out of any campaign.</li>
+              <li>Text <strong>HELP</strong> for assistance.</li>
+            </ul>
+            <h3>Carrier Disclaimer</h3>
+            <p>Carriers are not liable for delayed or undelivered messages.</p>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+function scrollToTeeTimes(){
+  const el=document.getElementById('content-scroll');
+  if(el) el.scrollTo({top:0,behavior:'smooth'});
+}
+
+function openInfoPanel(){
+  document.getElementById('info-panel-overlay').classList.add('open');
+  document.body.style.overflow='hidden';
+}
+function closeInfoPanel(){
+  document.getElementById('info-panel-overlay').classList.remove('open');
+  document.body.style.overflow='';
+}
+function infoPanelOverlayClick(e){
+  if(e.target===document.getElementById('info-panel-overlay')) closeInfoPanel();
+}
+function togglePolicy(id){
+  const body=document.getElementById(id+'-body');
+  const chev=document.getElementById(id+'-chevron');
+  const open=body.classList.toggle('open');
+  chev.style.transform=open?'rotate(180deg)':'rotate(0deg)';
+  chev.style.transition='transform .2s';
+}
+</script>
+
+
+<!-- ══ MOBILE FILTER BUTTON (injected into content area by JS) ══ -->
+<!-- ══ BOTTOM SHEET ════════════════════════════════════════════ -->
+<div class="sheet-overlay" id="sheet-overlay" onclick="sheetOverlayClick(event)">
+  <div class="sheet" id="sheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-header">
+      <div class="sheet-title">Date &amp; Filters</div>
+      <button class="sheet-close" onclick="closeSheet()">×</button>
+    </div>
+    <div class="sheet-body">
+
+      <div class="sheet-section">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+          <div class="sec-lbl" style="margin-bottom:0">Select date</div>
+          <div id="sheet-selected-lbl" style="font-size:11px;font-weight:500;color:var(--green-dark);display:none"></div>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+          <button id="sheet-cal-prev" onclick="sheetCalNav(-1)" style="background:none;border:none;cursor:pointer;color:var(--text-light);font-size:22px;padding:2px 8px;line-height:1;font-family:inherit">&#8249;</button>
+          <div class="cal-month" id="sheet-cal-month-lbl" style="margin-bottom:0">May 2026</div>
+          <button id="sheet-cal-next" onclick="sheetCalNav(1)" style="background:none;border:none;cursor:pointer;color:var(--text-light);font-size:22px;padding:2px 8px;line-height:1;font-family:inherit">&#8250;</button>
+        </div>
+        <div class="cal-dow-row">
+          <div class="cal-dow">Su</div><div class="cal-dow">Mo</div><div class="cal-dow">Tu</div>
+          <div class="cal-dow">We</div><div class="cal-dow">Th</div><div class="cal-dow">Fr</div><div class="cal-dow">Sa</div>
+        </div>
+        <div class="cal-grid" id="sheet-cal-grid"></div>
+      </div>
+
+      <div class="sheet-section">
+        <div class="sec-lbl">Cart preference</div>
+        <div class="toggle-row" style="margin-bottom:0">
+          <button class="toggle-btn" id="sheet-btn-walk" onclick="setCartSheet('walk')">Walking</button>
+          <button class="toggle-btn active" id="sheet-btn-ride" onclick="setCartSheet('ride')">Riding cart</button>
+        </div>
+      </div>
+
+      <div class="sheet-section" style="margin-top:4px">
+        <div class="sec-lbl">Filter by time</div>
+        <div class="filter-row" id="sheet-tfrow" style="gap:6px">
+          <button class="filter-btn active" onclick="setTF('all',this);syncFilters(this,'all')">All times</button>
+          <button class="filter-btn" onclick="setTF('early',this);syncFilters(this,'early')">Early bird</button>
+          <button class="filter-btn" onclick="setTF('prime',this);syncFilters(this,'prime')">Prime time</button>
+          <button class="filter-btn" onclick="setTF('afternoon',this);syncFilters(this,'afternoon')">Afternoon</button>
+          <button class="filter-btn" onclick="setTF('twilight',this);syncFilters(this,'twilight')">Twilight</button>
+        </div>
+      </div>
+
+      <div class="sheet-section">
+        <div class="pricing-note">
+          <div class="pricing-note-title">About our pricing</div>
+          <div class="pricing-note-body">Tee time rates vary based on time of day, day of the week, weather conditions, and course availability.</div>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:flex-start;gap:4px;margin-top:12px;padding-top:10px;border-top:1px solid var(--cream-dark)">
+          <svg width="200" height="52" viewBox="0 0 240 56" fill="none">
+            <line x1="12" y1="4" x2="12" y2="50" stroke="#2a1a0a" stroke-width="2" stroke-linecap="round"/>
+            <path d="M12 6 L44 16 L12 26 Z" fill="#c9a84c"/>
+            <path d="M12 6 L44 16 L42 17 L12 8 Z" fill="#e8c97a" opacity=".5"/>
+            <path d="M12 16 L44 16 L12 26 Z" fill="#8a6a1a" opacity=".35"/>
+            <line x1="12" y1="16" x2="44" y2="16" stroke="#a07828" stroke-width="0.6" opacity=".6"/>
+            <line x1="5" y1="50" x2="19" y2="50" stroke="#2a1a0a" stroke-width="1.8" stroke-linecap="round"/>
+              <text x="58" y="29" font-family="Georgia,serif" font-size="26" font-weight="700" fill="#1a3a2a" letter-spacing="2">DYNAMIC</text>
+            <text x="58" y="49" font-family="Georgia,serif" font-size="20" font-weight="400" fill="#c9a84c" letter-spacing="6">GOLF</text>
+          </svg>
+          <div style="font-size:8px;color:var(--text-light);letter-spacing:.04em;line-height:1.2;margin-top:2px">Powered by</div>
+        </div>
+      </div>
+
+      <button class="confirm-btn" onclick="applySheetAndClose()" style="background:var(--green-dark);color:var(--white);width:100%;border:none;border-radius:9px;padding:13px;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:500;cursor:pointer;margin-top:4px">Show tee times</button>
+
+    </div>
+  </div>
+</div>
+
+<script>
+// ── MOBILE FILTER BUTTON (inserted dynamically) ──────────────────
+function injectMobileFilterBtn(){
+  if(window.innerWidth>768) return;
+  if(document.getElementById('mob-filter-btn')) return;
+  const btn=document.createElement('button');
+  btn.className='mobile-filter-btn';
+  btn.id='mob-filter-btn';
+  btn.innerHTML='<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="6" x2="20" y2="6"/><line x1="4" y1="12" x2="14" y2="12"/><line x1="4" y1="18" x2="10" y2="18"/></svg> Filters &amp; Date';
+  btn.onclick=openSheet;
+  const scroll=document.getElementById('content-scroll');
+  if(scroll) scroll.insertBefore(btn,scroll.firstChild);
+}
+
+// ── SHEET ────────────────────────────────────────────────────────
+function openSheet(){
+  buildSheetCal();
+  document.getElementById('sheet-overlay').classList.add('open');
+  document.body.style.overflow='hidden';
+}
+function closeSheet(){
+  document.getElementById('sheet-overlay').classList.remove('open');
+  document.body.style.overflow='';
+}
+function applySheetAndClose(){
+  renderList();
+  closeSheet();
+}
+function updateSheetSelectedLabel(){
+  const lbl=document.getElementById('sheet-selected-lbl');
+  if(!lbl) return;
+  if(selIdx!==null){
+    const f=FC[selIdx];
+    const dt=new Date(f.date+'T12:00:00');
+    lbl.textContent=dt.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'});
+    lbl.style.display='block';
+  } else {
+    lbl.style.display='none';
+  }
+}
+function sheetOverlayClick(e){if(e.target===document.getElementById('sheet-overlay'))closeSheet();}
+
+// ── SHEET CALENDAR (mirrors main cal) ───────────────────────────
+function buildSheetCal(){
+  document.getElementById('sheet-cal-month-lbl').textContent=MONTH_NAMES[calMonth]+' '+calYear;
+  const g=document.getElementById('sheet-cal-grid');g.innerHTML='';
+  const daysInMonth=new Date(calYear,calMonth+1,0).getDate();
+  const firstDow=new Date(calYear,calMonth,1).getDay();
+  const firstDate=new Date(FC[0].date+'T12:00:00');
+  const firstY=firstDate.getFullYear(),firstM=firstDate.getMonth();
+  const atFirst=(calYear===firstY&&calMonth===firstM)||(calYear<firstY);
+  document.getElementById('sheet-cal-prev').style.opacity=atFirst?'.25':'1';
+  document.getElementById('sheet-cal-prev').style.pointerEvents=atFirst?'none':'';
+  for(let i=0;i<firstDow;i++){const e=document.createElement('div');e.className='cal-day ghost';g.appendChild(e);}
+  for(let d=1;d<=daysInMonth;d++){
+    const ds=`${calYear}-${String(calMonth+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    const fi=FC.findIndex(f=>f.date===ds);
+    const btn=document.createElement('button');
+    if(fi>=0){
+      btn.className='cal-day avail'+(selIdx===fi?' active':'');
+      btn.textContent=d;
+      btn.onclick=()=>{selIdx=fi;selTime=null;buildSheetCal();updateSheetSelectedLabel();};
+    } else {
+      btn.className='cal-day';btn.style.opacity='.22';btn.style.cursor='default';btn.disabled=true;
+      btn.textContent=d;
+    }
+    g.appendChild(btn);
+  }
+}
+
+function sheetCalNav(dir){
+  let nm=calMonth+dir,ny=calYear;
+  if(nm>11){nm=0;ny++;}
+  if(nm<0){nm=11;ny--;}
+  const firstDate=new Date(FC[0].date+'T12:00:00');
+  if(ny<firstDate.getFullYear()||(ny===firstDate.getFullYear()&&nm<firstDate.getMonth())) return;
+  calMonth=nm;calYear=ny;
+  buildCal();buildSheetCal();
+}
+
+// Sheet cart toggle — calls main setCart and syncs UI
+function setCartSheet(m){
+  cartMode=m;
+  // Sync sheet buttons
+  ['sheet-btn-walk','sheet-btn-ride'].forEach(id=>{
+    const el=document.getElementById(id);
+    if(el) el.classList.toggle('active', (m==='walk'&&id==='sheet-btn-walk')||(m==='ride'&&id==='sheet-btn-ride'));
+  });
+  // Sync sidebar buttons
+  ['btn-walk','btn-ride'].forEach(id=>{
+    const el=document.getElementById(id);
+    if(el) el.classList.toggle('active', (m==='walk'&&id==='btn-walk')||(m==='ride'&&id==='btn-ride'));
+  });
+}
+
+function syncFilters(btn,val){
+  // Sync desktop sidebar filters
+  document.querySelectorAll('#tfrow .filter-btn').forEach(b=>b.classList.remove('active'));
+  const desktopBtns=document.querySelectorAll('#tfrow .filter-btn');
+  const vals=['all','early','prime','afternoon','twilight'];
+  const idx=vals.indexOf(val);
+  if(desktopBtns[idx]) desktopBtns[idx].classList.add('active');
+  // Sync sheet filters
+  document.querySelectorAll('#sheet-tfrow .filter-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+}
+
+window.addEventListener('resize',injectMobileFilterBtn);
+window.addEventListener('DOMContentLoaded',injectMobileFilterBtn);
+</script>
+
+</body>
+</html>
