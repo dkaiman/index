@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Collegiate Dry Cleaners | Pickup & Delivery</title>
+<style>
+:root{--bg:#fbf9f4;--ink:#1f2a24;--green:#1f3d33;--gold:#e8bd12;--tan:#8a7348;--line:#dcd5c9;--card:#fff;--muted:#5e6a63;--rushbg:#fbf0c2;--stdbg:#dcebe3;--rangebg:#eef3ef}
+@media(prefers-color-scheme:dark){:root{--bg:#161b18;--ink:#f1efe8;--green:#2f6a56;--line:#33403a;--card:#1f2622;--muted:#a9b4ad;--rushbg:#4a4210;--stdbg:#27443a;--rangebg:#26302b}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Segoe UI",system-ui,sans-serif;line-height:1.5}
+h1,h2,.logo{font-family:Georgia,"Times New Roman",serif}
+header{display:flex;justify-content:space-between;align-items:center;padding:16px 5vw;border-bottom:1px solid var(--line)}
+.logo{font-size:1.35rem;font-weight:bold}.logo span{color:var(--tan)}
+.btn{background:var(--green);color:#fff;border:0;border-radius:8px;padding:12px 22px;font-size:1rem;cursor:pointer;text-decoration:none;display:inline-block}
+.btn:hover{opacity:.9}
+.hero{padding:72px 5vw 56px;max-width:900px}
+.hero h1{font-size:clamp(2.2rem,6vw,3.6rem);margin:0 0 12px;line-height:1.1}
+.hero p{font-size:1.15rem;color:var(--muted);max-width:560px}
+.rule{border:0;border-top:3px solid var(--tan);margin:0 5vw}
+section{padding:48px 5vw;max-width:1000px}
+h2{font-size:2rem;margin:0 0 20px}
+.price-row{display:flex;justify-content:space-between;padding:16px 0;border-bottom:1px solid var(--line);font-size:1.1rem}
+.price-row b{font-variant-numeric:tabular-nums}
+.note{background:var(--gold);color:#1f2a24;padding:14px 18px;border-radius:8px;margin-top:20px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:16px}
+@media(max-width:700px){.grid{grid-template-columns:1fr}}
+label{display:block;font-weight:600;margin:14px 0 6px}
+input,select{width:100%;padding:11px;border:1px solid var(--line);border-radius:8px;background:var(--card);color:var(--ink);font-size:1rem}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:22px}
+.item{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--line)}
+.qty{display:flex;align-items:center;gap:10px}
+.qty button{width:32px;height:32px;border-radius:50%;border:1px solid var(--line);background:var(--card);color:var(--ink);font-size:1.1rem;cursor:pointer}
+.summary div{display:flex;justify-content:space-between;padding:6px 0}
+.total{font-weight:bold;font-size:1.25rem;border-top:2px solid var(--ink);margin-top:6px;padding-top:10px!important}
+.msg{margin-top:12px;font-size:.95rem}.err{color:#c0392b}.ok{color:#2e8b57}
+footer{padding:32px 5vw;border-top:1px solid var(--line);color:var(--muted)}
+h3{margin:0 0 10px}
+/* Calendar */
+.dates{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px}
+.dbox{border:2px solid var(--line);border-radius:10px;padding:10px 14px}
+.dbox small{display:block;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;font-size:.72rem}
+.dbox b{font-size:1.05rem}
+.dbox.active{border-color:var(--green)}
+.calnav{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.calnav button{width:38px;height:38px;border-radius:50%;border:1px solid var(--line);background:var(--card);color:var(--ink);font-size:1.2rem;cursor:pointer}
+.calnav button:disabled{opacity:.3;cursor:not-allowed}
+.months{display:grid;grid-template-columns:1fr 1fr;gap:28px}
+@media(max-width:700px){.months{grid-template-columns:1fr}.m2{display:none}}
+.mtitle{text-align:center;font-weight:bold;font-family:Georgia,serif;font-size:1.1rem;margin-bottom:6px}
+.cgrid{display:grid;grid-template-columns:repeat(7,1fr);gap:2px}
+.wd{text-align:center;font-size:.75rem;color:var(--muted);padding:4px 0}
+.day{aspect-ratio:1;border:0;background:none;color:var(--ink);font-size:.95rem;border-radius:8px;cursor:pointer;padding:0}
+.day:hover:not(:disabled):not(.sel){outline:2px solid var(--green)}
+.day:disabled{color:var(--muted);opacity:.4;cursor:not-allowed;text-decoration:line-through}
+.day.rush{background:var(--rushbg)}
+.day.std{background:var(--stdbg)}
+.day.range{background:var(--rangebg);border-radius:0}
+.day.sel{background:var(--green);color:#fff;font-weight:bold}
+.empty{visibility:hidden}
+.legend{display:flex;flex-wrap:wrap;gap:16px;margin-top:14px;font-size:.85rem;color:var(--muted)}
+.legend i{display:inline-block;width:14px;height:14px;border-radius:4px;vertical-align:-2px;margin-right:6px;border:1px solid var(--line)}
+.clear{background:none;border:0;color:var(--green);text-decoration:underline;cursor:pointer;font-size:.9rem;padding:0;margin-left:8px}
+@media(prefers-color-scheme:dark){.clear{color:#7fc4aa}}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">Collegiate <span>Dry Cleaners</span></div>
+  <a class="btn" href="#schedule">Schedule pickup</a>
+</header>
+
+<div class="hero">
+  <h1>Clean clothes, delivered on schedule.</h1>
+  <p>We pick up your dry cleaning from your door and bring it back fresh and pressed. Pick your dates, we handle the rest.</p>
+</div>
+<hr class="rule">
+
+<section id="pricing">
+  <h2>Dry cleaning prices</h2>
+  <div id="priceList"></div>
+  <div class="note"><b>Turnaround:</b> Standard delivery is 5+ days after pickup. Need it sooner? Rush delivery (3–4 days) adds a flat <span id="rushLabel"></span> fee. Delivery within 2 days isn't available.</div>
+</section>
+
+<section id="schedule">
+  <h2>Schedule your pickup</h2>
+
+  <div class="card">
+    <h3>1. Choose your dates</h3>
+    <div class="dates">
+      <div class="dbox active" id="boxP"><small>Pickup</small><b id="showP">Select date</b></div>
+      <div class="dbox" id="boxD"><small>Return (drop-off)</small><b id="showD">Select date</b></div>
+    </div>
+    <div class="calnav">
+      <button type="button" id="prev" aria-label="Previous month">‹</button>
+      <span><button type="button" class="clear" id="clear">Clear dates</button></span>
+      <button type="button" id="next" aria-label="Next month">›</button>
+    </div>
+    <div class="months" id="cal"></div>
+    <div class="legend">
+      <span><i style="background:var(--green)"></i>Selected</span>
+      <span><i style="background:var(--rushbg)"></i>Rush return (fee)</span>
+      <span><i style="background:var(--stdbg)"></i>Standard return</span>
+      <span><i style="opacity:.4"></i>Unavailable</span>
+    </div>
+    <div class="msg" id="dateMsg">Pick your pickup date, then your return date.</div>
+    <label for="window">Pickup time window</label>
+    <select id="window">
+      <option>8:00 AM – 11:00 AM</option>
+      <option>11:00 AM – 2:00 PM</option>
+      <option>2:00 PM – 5:00 PM</option>
+      <option>5:00 PM – 8:00 PM</option>
+    </select>
+  </div>
+
+  <div class="grid">
+    <div class="card">
+      <h3>2. Choose your items</h3>
+      <div id="items"></div>
+    </div>
+
+    <div class="card">
+      <h3>3. Your details</h3>
+      <label for="name">Full name</label><input id="name" autocomplete="name">
+      <label for="email">Email</label><input id="email" type="email" autocomplete="email">
+      <label for="phone">Phone</label><input id="phone" type="tel" autocomplete="tel">
+      <label for="address">Pickup &amp; delivery address</label><input id="address" autocomplete="street-address">
+
+      <h3 style="margin-top:22px">Order summary</h3>
+      <div class="summary">
+        <div><span>Items</span><span id="sItems">$0</span></div>
+        <div><span>Rush fee</span><span id="sRush">$0</span></div>
+        <div class="total"><span>Total</span><span id="sTotal">$0</span></div>
+      </div>
+      <button class="btn" id="submit" style="width:100%;margin-top:14px">Confirm order</button>
+      <div class="msg" id="formMsg"></div>
+    </div>
+  </div>
+</section>
+
+<footer>© <span id="yr"></span> Collegiate Dry Cleaners. Pickup &amp; delivery.</footer>
+
+<script>
+/* ===== SETTINGS: edit these ===== */
+const RUSH_FEE = 10;          // flat rush fee in dollars (return in 3–4 days)
+const MIN_DAYS = 3;           // earliest allowed return = pickup + 3 days (nothing within 2 days)
+const STANDARD_DAYS = 5;      // 5+ days = no rush fee
+// To auto-fill a spreadsheet: deploy a Google Apps Script web app (or Zapier/Formspree/Make webhook)
+// and paste its URL here. Orders are POSTed as JSON. Leave "" to download a CSV instead.
+const ORDER_ENDPOINT = "";
+/* ================================ */
+
+const ITEMS = [
+  {name:"Trousers",price:15},{name:"Sweaters",price:16},{name:"2 pc. suits",price:26},
+  {name:"Ties",price:6},{name:"Sport coats",price:17},{name:"Dresses",price:25},
+  {name:"Jackets",price:21},{name:"Coats",price:30}
+];
+const qty = {};
+const $ = id => document.getElementById(id);
+const money = n => "$" + n;
+
+$("yr").textContent = new Date().getFullYear();
+$("rushLabel").textContent = money(RUSH_FEE);
+
+// Price list + item selectors
+ITEMS.forEach((it,i)=>{
+  $("priceList").insertAdjacentHTML("beforeend",`<div class="price-row"><span>${it.name}</span><b>${money(it.price)}</b></div>`);
+  qty[i]=0;
+  $("items").insertAdjacentHTML("beforeend",`<div class="item"><span>${it.name} (${money(it.price)})</span>
+    <div class="qty"><button type="button" data-i="${i}" data-d="-1" aria-label="Remove one ${it.name}">−</button>
+    <span id="q${i}">0</span><button type="button" data-i="${i}" data-d="1" aria-label="Add one ${it.name}">+</button></div></div>`);
+});
+$("items").addEventListener("click",e=>{
+  const b=e.target.closest("button"); if(!b) return;
+  const i=b.dataset.i; qty[i]=Math.max(0,qty[i]+Number(b.dataset.d));
+  $("q"+i).textContent=qty[i]; update();
+});
+
+// Date helpers (local time, avoids timezone bugs)
+const fmt = d => d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
+const parse = s => { const [y,m,d]=s.split("-").map(Number); return new Date(y,m-1,d); };
+const addDays = (d,n) => { const x=new Date(d); x.setDate(x.getDate()+n); return x; };
+const daysBetween = (a,b) => Math.round((b-a)/86400000);
+const nice = s => parse(s).toLocaleDateString(undefined,{weekday:"short",month:"short",day:"numeric",year:"numeric"});
+
+const today = new Date(); today.setHours(0,0,0,0);
+const minPickup = addDays(today,1);
+let pickup = "", dropoff = "";
+let view = new Date(today.getFullYear(), today.getMonth(), 1);
+
+// Calendar
+function renderCal(){
+  const wrap=$("cal"); wrap.innerHTML="";
+  for(let k=0;k<2;k++){
+    const first = new Date(view.getFullYear(), view.getMonth()+k, 1);
+    const days = new Date(first.getFullYear(), first.getMonth()+1, 0).getDate();
+    let html = `<div class="${k?"m2":""}"><div class="mtitle">${first.toLocaleDateString(undefined,{month:"long",year:"numeric"})}</div><div class="cgrid">`;
+    ["S","M","T","W","T","F","S"].forEach(w=>html+=`<div class="wd">${w}</div>`);
+    for(let b=0;b<first.getDay();b++) html+=`<div class="empty"></div>`;
+    for(let n=1;n<=days;n++){
+      const d = new Date(first.getFullYear(), first.getMonth(), n), ds = fmt(d);
+      let cls="day", dis=false;
+      if(d < minPickup) dis=true;
+      if(pickup){
+        const off = daysBetween(parse(pickup), d);
+        if(off>0 && off<MIN_DAYS) dis=true;                       // within 2 days: blocked
+        else if(off>=MIN_DAYS && off<STANDARD_DAYS) cls+=" rush"; // 3–4 days: rush
+        else if(off>=STANDARD_DAYS) cls+=" std";                  // 5+ days: standard
+      }
+      if(pickup && dropoff && ds>pickup && ds<dropoff) cls+=" range";
+      if(ds===pickup || ds===dropoff) cls+=" sel";
+      html+=`<button type="button" class="${cls}" data-d="${ds}" ${dis?"disabled":""}>${n}</button>`;
+    }
+    wrap.insertAdjacentHTML("beforeend", html+`</div></div>`);
+  }
+  $("prev").disabled = view <= new Date(today.getFullYear(), today.getMonth(), 1);
+}
+$("prev").onclick=()=>{view=new Date(view.getFullYear(),view.getMonth()-1,1);renderCal();};
+$("next").onclick=()=>{view=new Date(view.getFullYear(),view.getMonth()+1,1);renderCal();};
+$("clear").onclick=()=>{pickup="";dropoff="";renderCal();update();};
+$("cal").addEventListener("click",e=>{
+  const b=e.target.closest(".day"); if(!b||b.disabled) return;
+  const ds=b.dataset.d;
+  if(!pickup || ds<=pickup){ pickup=ds; dropoff=""; }   // choosing (or re-choosing) pickup
+  else { dropoff=ds; }                                  // choosing return date
+  renderCal(); update();
+});
+
+function rushApplies(){
+  if(!pickup||!dropoff) return false;
+  const n=daysBetween(parse(pickup),parse(dropoff));
+  return n>=MIN_DAYS && n<STANDARD_DAYS;
+}
+
+function update(){
+  const sub = ITEMS.reduce((s,it,i)=>s+it.price*qty[i],0);
+  const rush = rushApplies() ? RUSH_FEE : 0;
+  $("sItems").textContent=money(sub);
+  $("sRush").textContent=money(rush);
+  $("sTotal").textContent=money(sub+rush);
+
+  $("showP").textContent = pickup ? nice(pickup) : "Select date";
+  $("showD").textContent = dropoff ? nice(dropoff) : "Select date";
+  $("boxP").classList.toggle("active", !pickup);
+  $("boxD").classList.toggle("active", !!pickup && !dropoff);
+
+  const m=$("dateMsg");
+  if(!pickup){ m.className="msg"; m.textContent="Pick your pickup date, then your return date."; }
+  else if(!dropoff){ m.className="msg"; m.textContent="Now pick a return date. Earliest is "+nice(fmt(addDays(parse(pickup),MIN_DAYS)))+" (rush). Standard, no fee, starts "+nice(fmt(addDays(parse(pickup),STANDARD_DAYS)))+"."; }
+  else if(rush){ m.className="msg err"; m.textContent="Rush delivery: a "+money(RUSH_FEE)+" fee applies for return in "+daysBetween(parse(pickup),parse(dropoff))+" days."; }
+  else { m.className="msg ok"; m.textContent="Standard delivery, no rush fee."; }
+}
+
+$("submit").addEventListener("click",async()=>{
+  const f=$("formMsg"); f.className="msg err";
+  const sub = ITEMS.reduce((s,it,i)=>s+it.price*qty[i],0);
+  const need=["name","email","phone","address"].some(id=>!$(id).value.trim());
+  if(sub===0) return f.textContent="Please add at least one item.";
+  if(!pickup||!dropoff) return f.textContent="Please choose both pickup and return dates.";
+  if(daysBetween(parse(pickup),parse(dropoff))<MIN_DAYS) return f.textContent="Return must be at least "+MIN_DAYS+" days after pickup.";
+  if(need) return f.textContent="Please fill in all your details.";
+  if(!/^\S+@\S+\.\S+$/.test($("email").value)) return f.textContent="Please enter a valid email.";
+
+  const order={
+    submitted:new Date().toISOString(),
+    name:$("name").value.trim(), email:$("email").value.trim(), phone:$("phone").value.trim(),
+    address:$("address").value.trim(), pickup_date:pickup, pickup_window:$("window").value,
+    dropoff_date:dropoff, rush:rushApplies()?"Yes":"No",
+    items:ITEMS.map((it,i)=>qty[i]?qty[i]+"x "+it.name:"").filter(Boolean).join("; "),
+    total:sub+(rushApplies()?RUSH_FEE:0)
+  };
+
+  if(ORDER_ENDPOINT){
+    try{
+      await fetch(ORDER_ENDPOINT,{method:"POST",mode:"no-cors",headers:{"Content-Type":"text/plain"},body:JSON.stringify(order)});
+    }catch(e){ return f.textContent="Something went wrong sending your order. Please try again."; }
+  } else {
+    // Fallback: download a CSV row so orders can be opened in Excel
+    const cols=Object.keys(order);
+    const csv=cols.join(",")+"\n"+cols.map(c=>'"'+String(order[c]).replace(/"/g,'""')+'"').join(",");
+    const a=document.createElement("a");
+    a.href=URL.createObjectURL(new Blob([csv],{type:"text/csv"}));
+    a.download="collegiate-order.csv"; a.click();
+  }
+  f.className="msg ok";
+  f.textContent="Order confirmed! We'll pick up on "+nice(order.pickup_date)+" ("+order.pickup_window+") and deliver on "+nice(order.dropoff_date)+". Total: "+money(order.total)+".";
+});
+
+renderCal(); update();
+</script>
+</body>
+</html>
